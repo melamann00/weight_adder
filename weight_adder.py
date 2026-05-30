@@ -16,6 +16,8 @@ def calculate(entry_widget, result_label_widget):
         if wanted < BAR_WEIGHT:
             messagebox.showerror("Błąd", "Ciężar musi być większy lub równy 20 kg.")
             return
+        elif wanted > 700:
+            messagebox.showerror("Błąd", "Podano zbyt duży ciężar.")
         if wanted == BAR_WEIGHT:
             result_label_widget.config(text="Brak ciężaru do załadowania")
             return
@@ -99,4 +101,3 @@ calc_button = tk.Button(
 calc_button.pack(pady=10)
 result_label.pack(pady=10)
 root.mainloop()
-# test
