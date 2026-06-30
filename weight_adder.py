@@ -2,7 +2,7 @@ import tkinter as tk
 import webbrowser
 from tkinter import messagebox
 
-weights = [25, 20, 15, 10, 5, 2.5, 1.25, 0.5]
+weights = [25, 20, 15, 10, 5, 2.5, 1.25, 0.5, 0.25]
 BAR_WEIGHT = 20
 
 
