@@ -1,9 +1,15 @@
+import datetime
+import os
 import tkinter as tk
 import webbrowser
 from tkinter import messagebox
 
+if not os.path.exists("/home/melman/Dokumenty/weight_adder"):
+    os.mkdir("/home/melman/Dokumenty/weight_adder")
+
 weights = [25, 20, 15, 10, 5, 2.5, 1.25, 0.5, 0.25]
 BAR_WEIGHT = 20
+loaded = []
 
 
 def url():
@@ -23,7 +29,7 @@ def calculate(entry_widget, result_label_widget):
             return
 
         weight_per_side = (wanted - BAR_WEIGHT) / 2
-        loaded = []
+        loaded.clear()
         for weight in weights:
             while weight_per_side - weight >= -0.001:
                 if weight_per_side - weight < -0.001:
@@ -39,8 +45,27 @@ def calculate(entry_widget, result_label_widget):
             result_label_widget.config(
                 text="Talerze na jedną stronę:\n" + " | ".join(map(str, loaded))
             )
+
     except ValueError:
         messagebox.showerror("Błąd", "Podaj poprawną liczbę.")
+
+
+def temp_result():
+    return " | ".join(map(str, loaded))
+
+
+def saveresult():
+    calculated_time = datetime.datetime.now()
+    with open("/home/melman/Dokumenty/weight_adder/weight-adder-save.txt", "a") as was:
+        was.write(
+            calculated_time.strftime("%c")
+            + " "
+            + entry.get()
+            + "kg"
+            + " "
+            + temp_result()
+            + "\n"
+        )
 
 
 def open_second_window():
@@ -82,6 +107,9 @@ menu.add_cascade(label="File", menu=filemenu)
 filemenu.add_command(label="New", command=open_second_window)
 filemenu.add_separator()
 filemenu.add_command(label="Exit", command=root.quit)
+savemenu = tk.Menu(menu)
+menu.add_cascade(label="Save", menu=savemenu)
+savemenu.add_command(label="Save", command=saveresult)
 helpmenu = tk.Menu(menu)
 menu.add_cascade(label="Help", menu=helpmenu)
 helpmenu.add_command(label="About", command=url)
