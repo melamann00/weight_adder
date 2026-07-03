@@ -1,11 +1,10 @@
 import datetime
-import os
 import tkinter as tk
 import webbrowser
+from pathlib import Path
 from tkinter import messagebox
 
-if not os.path.exists("/home/melman/Dokumenty/weight_adder"):
-    os.mkdir("/home/melman/Dokumenty/weight_adder")
+documents_path = Path.home() / "Dokumenty" / "weight_adder" / "weight-adder-save.txt"
 
 weights = [25, 20, 15, 10, 5, 2.5, 1.25, 0.5, 0.25]
 BAR_WEIGHT = 20
@@ -55,8 +54,9 @@ def temp_result():
 
 
 def saveresult():
+
     calculated_time = datetime.datetime.now()
-    with open("/home/melman/Dokumenty/weight_adder/weight-adder-save.txt", "a") as was:
+    with open(documents_path, "a") as was:
         was.write(
             calculated_time.strftime("%c")
             + " "
