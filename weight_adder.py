@@ -15,6 +15,14 @@ def url():
     webbrowser.open("https://github.com/melamann00/weight_adder")
 
 
+def strength_calculate(weight, reps):
+    brzycki = weight / (1.0278 - 0.0278 * reps)
+    epley = weight * (1 + 0.0333 * reps)
+    oconner = weight * (1 + (0.025 * reps))
+    avg_ORM = (brzycki + epley + oconner) / 3
+    return avg_ORM
+
+
 def calculate(entry_widget, result_label_widget):
     try:
         wanted = float(entry_widget.get())
@@ -54,7 +62,6 @@ def temp_result():
 
 
 def saveresult():
-
     calculated_time = datetime.datetime.now()
     with open(documents_path, "a") as was:
         was.write(
@@ -66,6 +73,14 @@ def saveresult():
             + temp_result()
             + "\n"
         )
+
+
+def open_onerep_max():
+    new_win = tk.Toplevel(root)
+    menu = tk.Menu(new_win)
+    new_win.config(menu=menu)
+    new_win.title("Kalkulator One Rep Max")
+    new_win.geometry("400x300")
 
 
 def open_second_window():
@@ -109,7 +124,10 @@ filemenu.add_separator()
 filemenu.add_command(label="Exit", command=root.quit)
 savemenu = tk.Menu(menu)
 menu.add_cascade(label="Save", menu=savemenu)
-savemenu.add_command(label="Save", command=saveresult)
+savemenu.add_command(label="Save result", command=saveresult)
+othermenu = tk.Menu(menu)
+menu.add_cascade(label="Other", menu=othermenu)
+othermenu.add_command(label="One Rep Max calculator", command=open_onerep_max)
 helpmenu = tk.Menu(menu)
 menu.add_cascade(label="Help", menu=helpmenu)
 helpmenu.add_command(label="About", command=url)
