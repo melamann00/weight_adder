@@ -81,6 +81,30 @@ def open_onerep_max():
     new_win.config(menu=menu)
     new_win.title("Kalkulator One Rep Max")
     new_win.geometry("400x300")
+    weight_reps = tk.Label(new_win, text="Podaj ciężar (kg):")
+    weight_reps.pack()
+    entry = tk.Entry(new_win, font=("Arial", 12))
+    entry.pack(pady=5)
+    weight_reps = tk.Label(new_win, text="Podaj ilość powtórzeń:")
+    weight_reps.pack()
+    entry_weight = tk.Entry(new_win, font=("Arial", 12))
+    entry_weight.pack(pady=5)
+    result_label = tk.Label(new_win, text="", font=("Arial", 12), wraplength=350)
+
+    def orm_result():
+        try:
+            orm = strength_calculate(float(entry.get()), int(entry_weight.get()))
+            result_label.config(text=f"One Rep Max: {orm:.2f} kg")
+        except ValueError:
+            messagebox.showerror("Błąd", "Podaj poprawne wartości.")
+
+    calc_button = tk.Button(
+        new_win,
+        text="Przelicz",
+        command=lambda: orm_result(),
+    )
+    calc_button.pack(pady=10)
+    result_label.pack(pady=10)
 
 
 def open_second_window():
