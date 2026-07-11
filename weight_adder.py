@@ -19,7 +19,7 @@ def strength_calculate(weight, reps):
     brzycki = weight / (1.0278 - 0.0278 * reps)
     epley = weight * (1 + 0.0333 * reps)
     oconner = weight * (1 + (0.025 * reps))
-    avg_ORM = (brzycki + epley + oconner) / 3
+    avg_ORM = round((brzycki + epley + oconner) / 3, 2)
     return avg_ORM
 
 
@@ -94,7 +94,7 @@ def open_onerep_max():
     def orm_result():
         try:
             orm = strength_calculate(float(entry.get()), int(entry_weight.get()))
-            result_label.config(text=f"One Rep Max: {orm:.2f} kg")
+            result_label.config(text=f"One Rep Max: {orm} kg")
         except ValueError:
             messagebox.showerror("Błąd", "Podaj poprawne wartości.")
 
