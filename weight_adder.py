@@ -1,19 +1,64 @@
 import datetime
+import sys
 import tkinter as tk
 import webbrowser
 from pathlib import Path
 from tkinter import messagebox
+import os
 
-documents_path = Path.home() / "Dokumenty" / "weight_adder" / "weight-adder-save.txt"
+def get_documents_folder() -> Path:
+    home = Path.home()
+
+    if sys.platform == "win32":
+        try:
+            import ctypes
+            from ctypes import wintypes
+            CSIDL_PERSONAL = 5
+            SHGFP_TYPE_CURRENT = 0
+            buf = ctypes.create_unicode_buffer(wintypes.MAX_PATH)
+            ctypes.windll.shell32.SHGetFolderPathW(
+                None, CSIDL_PERSONAL, None, SHGFP_TYPE_CURRENT, buf
+            )
+            path = Path(buf.value)
+            if path.exists():
+                return path
+        except Exception:
+            pass
+        for name in ("Documents", "Dokumenty"):
+            candidate = home / name
+            if candidate.exists():
+                return candidate
+        return home / "Documents"
+    else:
+        config_file = home / ".config" / "user-dirs.dirs"
+        if config_file.exists():
+            try:
+                content = config_file.read_text(encoding="utf-8")
+                for line in content.splitlines():
+                    if line.startswith("XDG_DOCUMENTS_DIR"):
+                        value = line.split("=", 1)[1].strip().strip('"')
+                        value = value.replace("$HOME", str(home))
+                        path = Path(value)
+                        if path.exists():
+                            return path
+            except Exception:
+                pass
+
+        for name in ("Documents", "Dokumenty"):
+            candidate = home / name
+            if candidate.exists():
+                return candidate
+        return home / "Documents"
+
+documents_path = get_documents_folder() / "weight-adder" / "weight-adder-save.txt"
+os.makedirs(documents_path.parent, exist_ok=True)
 
 weights = [25, 20, 15, 10, 5, 2.5, 1.25, 0.5, 0.25]
 BAR_WEIGHT = 20
 loaded = []
 
-
 def url():
     webbrowser.open("https://github.com/melamann00/weight_adder")
-
 
 def strength_calculate(weight, reps):
     brzycki = weight / (1.0278 - 0.0278 * reps)
@@ -21,7 +66,6 @@ def strength_calculate(weight, reps):
     oconner = weight * (1 + (0.025 * reps))
     avg_ORM = round((brzycki + epley + oconner) / 3, 2)
     return avg_ORM
-
 
 def calculate(entry_widget, result_label_widget):
     try:
