@@ -67,7 +67,7 @@ def strength_calculate(weight, reps):
     avg_ORM = round((brzycki + epley + oconner) / 3, 2)
     return avg_ORM
 
-def calculate(entry_widget, result_label_widget):
+def calculate(entry_widget, result_label_widget, state):
     try:
         wanted = float(entry_widget.get())
         if wanted < BAR_WEIGHT:
@@ -75,12 +75,14 @@ def calculate(entry_widget, result_label_widget):
             return
         elif wanted > 700:
             messagebox.showerror("Błąd", "Podano zbyt duży ciężar.")
+            return
         if wanted == BAR_WEIGHT:
             result_label_widget.config(text="Brak ciężaru do załadowania")
+            state["loaded"] = []
             return
 
         weight_per_side = (wanted - BAR_WEIGHT) / 2
-        loaded.clear()
+        loaded = []
         for weight in weights:
             while weight_per_side - weight >= -0.001:
                 if weight_per_side - weight < -0.001:
@@ -92,36 +94,37 @@ def calculate(entry_widget, result_label_widget):
             result_label_widget.config(
                 text="Nie można dokładnie załadować takiego ciężaru."
             )
+            state["loaded"] = []
         else:
             result_label_widget.config(
                 text="Talerze na jedną stronę:\n" + " | ".join(map(str, loaded))
             )
+            state["loaded"] = loaded
 
     except ValueError:
         messagebox.showerror("Błąd", "Podaj poprawną liczbę.")
+        state["loaded"] = []
+
+def temp_result(state):
+    return " | ".join(map(str, state["loaded"]))
 
 
-def temp_result():
-    return " | ".join(map(str, loaded))
-
-
-def saveresult():
+def saveresult(entry_widget, state):
     calculated_time = datetime.datetime.now()
     with open(documents_path, "a") as was:
         was.write(
             calculated_time.strftime("%c")
             + " "
-            + entry.get()
+            + entry_widget.get()
             + "kg"
             + " "
-            + temp_result()
+            + " | ".join(map(str, state.get("loaded", [])))
             + "\n"
         )
 
-
 def open_onerep_max():
     new_win = tk.Toplevel(root)
-    menu = tk.Menu(new_win)
+    menu = tk.Menu(new_win, tearoff=0)
     new_win.config(menu=menu)
     new_win.title("Kalkulator One Rep Max")
     new_win.geometry("400x300")
@@ -153,17 +156,16 @@ def open_onerep_max():
 
 def open_second_window():
     new_win = tk.Toplevel(root)
-    menu = tk.Menu(new_win)
+    state = {"loaded": []}
+
+    menu = tk.Menu(new_win, tearoff=0)
     new_win.config(menu=menu)
-    filemenu = tk.Menu(menu)
+
+    filemenu = tk.Menu(menu, tearoff=0)
     menu.add_cascade(label="File", menu=filemenu)
     filemenu.add_command(label="New", command=open_second_window)
     filemenu.add_separator()
     filemenu.add_command(label="Exit", command=new_win.destroy)
-
-    helpmenu = tk.Menu(menu)
-    menu.add_cascade(label="Help", menu=helpmenu)
-    helpmenu.add_command(label="About", command=url)
 
     new_win.title("Kalkulator talerzy na sztangę")
     new_win.geometry("400x300")
@@ -176,29 +178,47 @@ def open_second_window():
     entry.pack(pady=5)
     result_label = tk.Label(new_win, text="", font=("Arial", 12), wraplength=350)
     calc_button = tk.Button(
-        new_win, text="Przelicz", command=lambda: calculate(entry, result_label)
+        new_win, text="Przelicz",
+        command=lambda: calculate(entry, result_label, state)
     )
     calc_button.pack(pady=10)
     result_label.pack(pady=10)
 
+    savemenu = tk.Menu(menu, tearoff=0)
+    menu.add_cascade(label="Save", menu=savemenu)
+    savemenu.add_command(label="Save result", command=lambda: saveresult(entry, state))
+
+    helpmenu = tk.Menu(menu, tearoff=0)
+    menu.add_cascade(label="Help", menu=helpmenu)
+    helpmenu.add_command(label="About", command=url)
+
+    othermenu = tk.Menu(menu, tearoff=0)
+    menu.add_cascade(label="Other", menu=othermenu)
+    othermenu.add_command(label="One Rep Max calculator", command=open_onerep_max)
 
 root = tk.Tk()
-menu = tk.Menu(root)
+root_state = {"loaded": []}
+
+menu = tk.Menu(root, tearoff=0)
 root.config(menu=menu)
-filemenu = tk.Menu(menu)
+filemenu = tk.Menu(menu, tearoff=0)
 menu.add_cascade(label="File", menu=filemenu)
 filemenu.add_command(label="New", command=open_second_window)
 filemenu.add_separator()
 filemenu.add_command(label="Exit", command=root.quit)
-savemenu = tk.Menu(menu)
+
+savemenu = tk.Menu(menu, tearoff=0)
 menu.add_cascade(label="Save", menu=savemenu)
-savemenu.add_command(label="Save result", command=saveresult)
-othermenu = tk.Menu(menu)
+savemenu.add_command(label="Save result", command=lambda: saveresult(entry, root_state))
+
+othermenu = tk.Menu(menu, tearoff=0)
 menu.add_cascade(label="Other", menu=othermenu)
 othermenu.add_command(label="One Rep Max calculator", command=open_onerep_max)
-helpmenu = tk.Menu(menu)
+
+helpmenu = tk.Menu(menu, tearoff=0)
 menu.add_cascade(label="Help", menu=helpmenu)
 helpmenu.add_command(label="About", command=url)
+
 root.title("Kalkulator talerzy na sztangę")
 root.geometry("400x300")
 root.resizable(True, True)
@@ -210,7 +230,7 @@ entry = tk.Entry(root, font=("Arial", 12))
 entry.pack(pady=5)
 result_label = tk.Label(root, text="", font=("Arial", 12), wraplength=350)
 calc_button = tk.Button(
-    root, text="Przelicz", command=lambda: calculate(entry, result_label)
+    root, text="Przelicz", command=lambda: calculate(entry, result_label, root_state)
 )
 calc_button.pack(pady=10)
 result_label.pack(pady=10)
