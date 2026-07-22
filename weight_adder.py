@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 import sys
 import tkinter as tk
 import webbrowser
@@ -110,7 +110,7 @@ def temp_result(state):
 
 
 def saveresult(entry_widget, state):
-    calculated_time = datetime.datetime.now()
+    calculated_time = datetime.now()
     with open(documents_path, "a") as was:
         was.write(
             calculated_time.strftime("%c")
