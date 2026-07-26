@@ -51,7 +51,7 @@ def get_documents_folder() -> Path:
                 return candidate
         return home / "Documents"
 
-documents_path = get_documents_folder() / "weight-adder" / "weight-adder-save.txt"
+documents_path = get_documents_folder() / "weight-adder"
 os.makedirs(documents_path.parent, exist_ok=True)
 
 weights = [25, 20, 15, 10, 5, 2.5, 1.25, 0.5, 0.25]
@@ -112,7 +112,7 @@ def temp_result(state):
 
 def saveresult(entry_widget, state):
     calculated_time = datetime.now()
-    with open(documents_path, "a") as was:
+    with open(documents_path  / "weight-adder-save.txt", "a") as was:
         was.write(
             calculated_time.strftime("%c")
             + " "
@@ -124,7 +124,7 @@ def saveresult(entry_widget, state):
         )
 def save_result_orm(orm, entry, entry_weight):
     calculated_time = datetime.now()
-    with open(documents_path, "a") as was2:
+    with open(documents_path / "weight-adder-save2.txt", "a") as was2:
         was2.write(
             calculated_time.strftime("%c")
             + " "
@@ -180,7 +180,7 @@ def open_onerep_max():
 
     savemenu = tk.Menu(menu, tearoff=0)
     menu.add_cascade(label="Save", menu=savemenu)
-    savemenu.add_command(label="Save result", command=lambda: save_result_orm(state["orm"], entry, entry_weight))
+    savemenu.add_command(label="Save result", command=lambda: save_result_orm(state["orm"], entry_weight, entry))
 
     othermenu = tk.Menu(menu, tearoff=0)
     menu.add_cascade(label="Other", menu=othermenu)
