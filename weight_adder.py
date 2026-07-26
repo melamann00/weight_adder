@@ -1,10 +1,11 @@
-from datetime import datetime
+import os
 import sys
 import tkinter as tk
 import webbrowser
+from datetime import datetime
 from pathlib import Path
 from tkinter import messagebox
-import os
+
 
 def get_documents_folder() -> Path:
     home = Path.home()
@@ -60,7 +61,7 @@ loaded = []
 def url():
     webbrowser.open("https://github.com/melamann00/weight_adder")
 
-def strength_calculate(weight, reps):
+def strength_calculator(weight, reps):
     brzycki = weight / (1.0278 - 0.0278 * reps)
     epley = weight * (1 + 0.0333 * reps)
     oconner = weight * (1 + (0.025 * reps))
@@ -121,9 +122,24 @@ def saveresult(entry_widget, state):
             + " | ".join(map(str, state.get("loaded", [])))
             + "\n"
         )
+def save_result_orm(orm, entry, entry_weight):
+    calculated_time = datetime.now()
+    with open(documents_path, "a") as was2:
+        was2.write(
+            calculated_time.strftime("%c")
+            + " "
+            + str(orm)
+            + " kg "
+            +entry_weight.get()
+            +" kg | "
+            +entry.get()
+            +" reps\n"
+        )
+
 
 def open_onerep_max():
     new_win = tk.Toplevel(root)
+    state = {"orm": None}          # NOWE
     menu = tk.Menu(new_win, tearoff=0)
     new_win.config(menu=menu)
     new_win.title("Kalkulator One Rep Max")
@@ -140,9 +156,11 @@ def open_onerep_max():
 
     def orm_result():
         try:
-            orm = strength_calculate(float(entry.get()), int(entry_weight.get()))
+            orm = strength_calculator(float(entry.get()), int(entry_weight.get()))
+            state["orm"] = orm
             result_label.config(text=f"One Rep Max: {orm} kg")
         except ValueError:
+            state["orm"] = None
             messagebox.showerror("Błąd", "Podaj poprawne wartości.")
 
     calc_button = tk.Button(
@@ -152,6 +170,25 @@ def open_onerep_max():
     )
     calc_button.pack(pady=10)
     result_label.pack(pady=10)
+
+    filemenu = tk.Menu(menu, tearoff=0)
+    menu.add_cascade(label="File", menu=filemenu)
+    filemenu.add_command(label="New", command=open_second_window)
+    filemenu.add_separator()
+    filemenu.add_command(label="Exit", command=new_win.destroy)
+
+
+    savemenu = tk.Menu(menu, tearoff=0)
+    menu.add_cascade(label="Save", menu=savemenu)
+    savemenu.add_command(label="Save result", command=lambda: save_result_orm(state["orm"], entry, entry_weight))
+
+    othermenu = tk.Menu(menu, tearoff=0)
+    menu.add_cascade(label="Other", menu=othermenu)
+    othermenu.add_command(label="One Rep Max calculator", command=open_onerep_max)
+
+    helpmenu = tk.Menu(menu, tearoff=0)
+    menu.add_cascade(label="Help", menu=helpmenu)
+    helpmenu.add_command(label="About", command=url)
 
 
 def open_second_window():
@@ -188,13 +225,14 @@ def open_second_window():
     menu.add_cascade(label="Save", menu=savemenu)
     savemenu.add_command(label="Save result", command=lambda: saveresult(entry, state))
 
+    othermenu = tk.Menu(menu, tearoff=0)
+    menu.add_cascade(label="Other", menu=othermenu)
+    othermenu.add_command(label="One Rep Max calculator", command=open_onerep_max)
+
     helpmenu = tk.Menu(menu, tearoff=0)
     menu.add_cascade(label="Help", menu=helpmenu)
     helpmenu.add_command(label="About", command=url)
 
-    othermenu = tk.Menu(menu, tearoff=0)
-    menu.add_cascade(label="Other", menu=othermenu)
-    othermenu.add_command(label="One Rep Max calculator", command=open_onerep_max)
 
 root = tk.Tk()
 root_state = {"loaded": []}
