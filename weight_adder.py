@@ -112,7 +112,7 @@ def temp_result(state):
 
 def saveresult(entry_widget, state):
     calculated_time = datetime.now()
-    with open(documents_path  / "weight-adder-save.txt", "a") as was:
+    with open(documents_path  / "weight-adder-save-plates.txt", "a") as was:
         was.write(
             calculated_time.strftime("%c")
             + " "
@@ -122,9 +122,10 @@ def saveresult(entry_widget, state):
             + " | ".join(map(str, state.get("loaded", [])))
             + "\n"
         )
+
 def save_result_orm(orm, entry, entry_weight):
     calculated_time = datetime.now()
-    with open(documents_path / "weight-adder-save2.txt", "a") as was2:
+    with open(documents_path / "weight-adder-save-orm.txt", "a") as was2:
         was2.write(
             calculated_time.strftime("%c")
             + " "
@@ -143,18 +144,18 @@ def open_onerep_max():
     menu = tk.Menu(new_win, tearoff=0)
     new_win.config(menu=menu)
     new_win.title("Kalkulator One Rep Max")
-    new_win.geometry("400x300")
+    new_win.geometry("600x400")
     title = tk.Label(new_win, text="Kalkulator One Rep Max", font=("Arial", 16))
     title.pack(pady=10)
     weight_reps = tk.Label(new_win, text="Podaj ciężar (kg):")
     weight_reps.pack()
-    entry = tk.Entry(new_win, font=("Arial", 12))
+    entry = tk.Entry(new_win, font=("Arial", 16))
     entry.pack(pady=5)
     weight_reps = tk.Label(new_win, text="Podaj ilość powtórzeń:")
     weight_reps.pack()
-    entry_weight = tk.Entry(new_win, font=("Arial", 12))
+    entry_weight = tk.Entry(new_win, font=("Arial", 16))
     entry_weight.pack(pady=5)
-    result_label = tk.Label(new_win, text="", font=("Arial", 12), wraplength=350)
+    result_label = tk.Label(new_win, text="", font=("Arial", 16), wraplength=350)
 
     def orm_result():
         try:
@@ -207,21 +208,24 @@ def open_second_window():
     filemenu.add_command(label="Exit", command=new_win.destroy)
 
     new_win.title("Kalkulator talerzy na sztangę")
-    new_win.geometry("400x300")
+    new_win.geometry("600x400")
     title_label = tk.Label(new_win, text="Kalkulator talerzy", font=("Arial", 16))
     title_label.pack(pady=10)
 
     entry_label = tk.Label(new_win, text="Podaj ciężar całkowity (kg):")
     entry_label.pack()
-    entry = tk.Entry(new_win, font=("Arial", 12))
+    entry = tk.Entry(new_win, font=("Arial", 16))
     entry.pack(pady=5)
-    result_label = tk.Label(new_win, text="", font=("Arial", 12), wraplength=350)
+    result_label = tk.Label(new_win, text="", font=("Arial", 16), wraplength=350)
     calc_button = tk.Button(
         new_win, text="Przelicz",
         command=lambda: calculate(entry, result_label, state)
     )
     calc_button.pack(pady=10)
     result_label.pack(pady=10)
+
+    save_button = tk.Button(new_win, text="Save", command=lambda: saveresult(entry, state))
+    save_button.pack(pady=10, side="top")
 
     savemenu = tk.Menu(menu, tearoff=0)
     menu.add_cascade(label="Save", menu=savemenu)
@@ -260,18 +264,22 @@ menu.add_cascade(label="Help", menu=helpmenu)
 helpmenu.add_command(label="About", command=url)
 
 root.title("Kalkulator talerzy na sztangę")
-root.geometry("400x300")
+root.geometry("600x400")
 root.resizable(True, True)
 title_label = tk.Label(root, text="Kalkulator talerzy", font=("Arial", 16))
 title_label.pack(pady=10)
 entry_label = tk.Label(root, text="Podaj ciężar całkowity (kg):")
 entry_label.pack()
-entry = tk.Entry(root, font=("Arial", 12))
+entry = tk.Entry(root, font=("Arial", 16))
 entry.pack(pady=5)
-result_label = tk.Label(root, text="", font=("Arial", 12), wraplength=350)
+result_label = tk.Label(root, text="", font=("Arial", 16), wraplength=350)
 calc_button = tk.Button(
     root, text="Przelicz", command=lambda: calculate(entry, result_label, root_state)
 )
 calc_button.pack(pady=10)
 result_label.pack(pady=10)
+
+save_button = tk.Button(root, text="Save", command=lambda: saveresult(entry, root_state))
+save_button.pack(pady=10, side="top")
+
 root.mainloop()
