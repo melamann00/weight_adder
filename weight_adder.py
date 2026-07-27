@@ -140,7 +140,7 @@ def save_result_orm(orm, entry, entry_weight):
 
 def open_onerep_max():
     new_win = tk.Toplevel(root)
-    state = {"orm": None}          # NOWE
+    state = {"orm": None}
     menu = tk.Menu(new_win, tearoff=0)
     new_win.config(menu=menu)
     new_win.title("Kalkulator One Rep Max")
@@ -180,6 +180,8 @@ def open_onerep_max():
     filemenu.add_separator()
     filemenu.add_command(label="Exit", command=new_win.destroy)
 
+    save_button = tk.Button(new_win, text="Save", command=lambda: save_result_orm(state["orm"], entry_weight, entry))
+    save_button.pack(pady=10, side="top")
 
     savemenu = tk.Menu(menu, tearoff=0)
     menu.add_cascade(label="Save", menu=savemenu)
