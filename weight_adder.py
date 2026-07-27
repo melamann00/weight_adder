@@ -144,6 +144,8 @@ def open_onerep_max():
     new_win.config(menu=menu)
     new_win.title("Kalkulator One Rep Max")
     new_win.geometry("400x300")
+    title = tk.Label(new_win, text="Kalkulator One Rep Max", font=("Arial", 16))
+    title.pack(pady=10)
     weight_reps = tk.Label(new_win, text="Podaj ciężar (kg):")
     weight_reps.pack()
     entry = tk.Entry(new_win, font=("Arial", 12))
