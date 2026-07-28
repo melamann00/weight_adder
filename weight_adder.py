@@ -1,6 +1,7 @@
 import os
 import sys
 import tkinter as tk
+import customtkinter as ctk
 import webbrowser
 from datetime import datetime
 from pathlib import Path
@@ -78,7 +79,7 @@ def calculate(entry_widget, result_label_widget, state):
             messagebox.showerror("Błąd", "Podano zbyt duży ciężar.")
             return
         if wanted == BAR_WEIGHT:
-            result_label_widget.config(text="Brak ciężaru do załadowania")
+            result_label_widget.configure(text="Brak ciężaru do załadowania")
             state["loaded"] = []
             return
 
@@ -92,12 +93,12 @@ def calculate(entry_widget, result_label_widget, state):
                 weight_per_side -= weight
 
         if weight_per_side > 0.001:
-            result_label_widget.config(
+            result_label_widget.configure(
                 text="Nie można dokładnie załadować takiego ciężaru."
             )
             state["loaded"] = []
         else:
-            result_label_widget.config(
+            result_label_widget.configure(
                 text="Talerze na jedną stronę:\n" + " | ".join(map(str, loaded))
             )
             state["loaded"] = loaded
@@ -139,34 +140,34 @@ def save_result_orm(orm, entry, entry_weight):
 
 
 def open_onerep_max():
-    new_win = tk.Toplevel(root)
+    new_win = ctk.CTkToplevel(root)
     state = {"orm": None}
     menu = tk.Menu(new_win, tearoff=0)
     new_win.config(menu=menu)
     new_win.title("Kalkulator One Rep Max")
     new_win.geometry("600x400")
-    title = tk.Label(new_win, text="Kalkulator One Rep Max", font=("Arial", 16))
+    title = ctk.CTkLabel(new_win, text="Kalkulator One Rep Max", font=("Arial", 16))
     title.pack(pady=10)
-    weight_reps = tk.Label(new_win, text="Podaj ciężar (kg):")
+    weight_reps = ctk.CTkLabel(new_win, text="Podaj ciężar (kg):")
     weight_reps.pack()
-    entry = tk.Entry(new_win, font=("Arial", 16))
+    entry = ctk.CTkEntry(new_win, font=("Arial", 16))
     entry.pack(pady=5)
-    weight_reps = tk.Label(new_win, text="Podaj ilość powtórzeń:")
+    weight_reps = ctk.CTkLabel(new_win, text="Podaj ilość powtórzeń:")
     weight_reps.pack()
-    entry_weight = tk.Entry(new_win, font=("Arial", 16))
+    entry_weight = ctk.CTkEntry(new_win, font=("Arial", 16))
     entry_weight.pack(pady=5)
-    result_label = tk.Label(new_win, text="", font=("Arial", 16), wraplength=350)
+    result_label = ctk.CTkLabel(new_win, text="", font=("Arial", 16), wraplength=350)
 
     def orm_result():
         try:
             orm = strength_calculator(float(entry.get()), int(entry_weight.get()))
             state["orm"] = orm
-            result_label.config(text=f"One Rep Max: {orm} kg")
+            result_label.configure(text=f"One Rep Max: {orm} kg")
         except ValueError:
             state["orm"] = None
             messagebox.showerror("Błąd", "Podaj poprawne wartości.")
 
-    calc_button = tk.Button(
+    calc_button = ctk.CTkButton(
         new_win,
         text="Przelicz",
         command=lambda: orm_result(),
@@ -180,7 +181,7 @@ def open_onerep_max():
     filemenu.add_separator()
     filemenu.add_command(label="Exit", command=new_win.destroy)
 
-    save_button = tk.Button(new_win, text="Save", command=lambda: save_result_orm(state["orm"], entry_weight, entry))
+    save_button = ctk.CTkButton(new_win, text="Save", command=lambda: save_result_orm(state["orm"], entry_weight, entry))
     save_button.pack(pady=10, side="top")
 
     savemenu = tk.Menu(menu, tearoff=0)
@@ -197,7 +198,7 @@ def open_onerep_max():
 
 
 def open_second_window():
-    new_win = tk.Toplevel(root)
+    new_win = ctk.CTkToplevel(root)
     state = {"loaded": []}
 
     menu = tk.Menu(new_win, tearoff=0)
@@ -211,22 +212,22 @@ def open_second_window():
 
     new_win.title("Kalkulator talerzy na sztangę")
     new_win.geometry("600x400")
-    title_label = tk.Label(new_win, text="Kalkulator talerzy", font=("Arial", 16))
+    title_label = ctk.CTkLabel(new_win, text="Kalkulator talerzy", font=("Arial", 16))
     title_label.pack(pady=10)
 
-    entry_label = tk.Label(new_win, text="Podaj ciężar całkowity (kg):")
+    entry_label = ctk.CTkLabel(new_win, text="Podaj ciężar całkowity (kg):")
     entry_label.pack()
-    entry = tk.Entry(new_win, font=("Arial", 16))
+    entry = ctk.CTkEntry(new_win, font=("Arial", 16))
     entry.pack(pady=5)
-    result_label = tk.Label(new_win, text="", font=("Arial", 16), wraplength=350)
-    calc_button = tk.Button(
+    result_label = ctk.CTkLabel(new_win, text="", font=("Arial", 16), wraplength=350)
+    calc_button = ctk.CTkButton(
         new_win, text="Przelicz",
         command=lambda: calculate(entry, result_label, state)
     )
     calc_button.pack(pady=10)
     result_label.pack(pady=10)
 
-    save_button = tk.Button(new_win, text="Save", command=lambda: saveresult(entry, state))
+    save_button = ctk.CTkButton(new_win, text="Save", command=lambda: saveresult(entry, state))
     save_button.pack(pady=10, side="top")
 
     savemenu = tk.Menu(menu, tearoff=0)
@@ -242,7 +243,10 @@ def open_second_window():
     helpmenu.add_command(label="About", command=url)
 
 
-root = tk.Tk()
+ctk.set_appearance_mode("System")
+ctk.set_default_color_theme("blue")
+
+root = ctk.CTk()
 root_state = {"loaded": []}
 
 menu = tk.Menu(root, tearoff=0)
@@ -268,20 +272,20 @@ helpmenu.add_command(label="About", command=url)
 root.title("Kalkulator talerzy na sztangę")
 root.geometry("600x400")
 root.resizable(True, True)
-title_label = tk.Label(root, text="Kalkulator talerzy", font=("Arial", 16))
+title_label = ctk.CTkLabel(root, text="Kalkulator talerzy", font=("Arial", 16))
 title_label.pack(pady=10)
-entry_label = tk.Label(root, text="Podaj ciężar całkowity (kg):")
+entry_label = ctk.CTkLabel(root, text="Podaj ciężar całkowity (kg):")
 entry_label.pack()
-entry = tk.Entry(root, font=("Arial", 16))
+entry = ctk.CTkEntry(root, font=("Arial", 16))
 entry.pack(pady=5)
-result_label = tk.Label(root, text="", font=("Arial", 16), wraplength=350)
-calc_button = tk.Button(
+result_label = ctk.CTkLabel(root, text="", font=("Arial", 16), wraplength=350)
+calc_button = ctk.CTkButton(
     root, text="Przelicz", command=lambda: calculate(entry, result_label, root_state)
 )
 calc_button.pack(pady=10)
 result_label.pack(pady=10)
 
-save_button = tk.Button(root, text="Save", command=lambda: saveresult(entry, root_state))
+save_button = ctk.CTkButton(root, text="Save", command=lambda: saveresult(entry, root_state))
 save_button.pack(pady=10, side="top")
 
 root.mainloop()
