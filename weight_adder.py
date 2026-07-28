@@ -142,21 +142,21 @@ def save_result_orm(orm, entry, entry_weight):
 def open_onerep_max():
     new_win = ctk.CTkToplevel(root)
     state = {"orm": None}
-    menu = tk.Menu(new_win, tearoff=0)
+    menu = tk.Menu(new_win, tearoff=0, font=("JetBrains Mono", 10))
     new_win.config(menu=menu)
     new_win.title("Kalkulator One Rep Max")
     new_win.geometry("600x400")
-    title = ctk.CTkLabel(new_win, text="Kalkulator One Rep Max", font=("Arial", 16))
+    title = ctk.CTkLabel(new_win, text="Kalkulator One Rep Max", font=("JetBrains Mono", 16))
     title.pack(pady=10)
-    weight_reps = ctk.CTkLabel(new_win, text="Podaj ciężar (kg):")
+    weight_reps = ctk.CTkLabel(new_win, text="Podaj ciężar (kg):", font=("JetBrains Mono", 16))
     weight_reps.pack()
-    entry = ctk.CTkEntry(new_win, font=("Arial", 16))
+    entry = ctk.CTkEntry(new_win, font=("JetBrains Mono", 16))
     entry.pack(pady=5)
-    weight_reps = ctk.CTkLabel(new_win, text="Podaj ilość powtórzeń:")
+    weight_reps = ctk.CTkLabel(new_win, text="Podaj ilość powtórzeń:", font=("JetBrains Mono", 16))
     weight_reps.pack()
-    entry_weight = ctk.CTkEntry(new_win, font=("Arial", 16))
+    entry_weight = ctk.CTkEntry(new_win, font=("JetBrains Mono", 16))
     entry_weight.pack(pady=5)
-    result_label = ctk.CTkLabel(new_win, text="", font=("Arial", 16), wraplength=350)
+    result_label = ctk.CTkLabel(new_win, text="", font=("JetBrains Mono", 16), wraplength=350)
 
     def orm_result():
         try:
@@ -171,28 +171,30 @@ def open_onerep_max():
         new_win,
         text="Przelicz",
         command=lambda: orm_result(),
+        font=("JetBrains Mono", 16),
+        hover_color="green"
     )
     calc_button.pack(pady=10)
     result_label.pack(pady=10)
 
-    filemenu = tk.Menu(menu, tearoff=0)
+    filemenu = tk.Menu(menu, tearoff=0, font=("JetBrains Mono", 10))
     menu.add_cascade(label="File", menu=filemenu)
     filemenu.add_command(label="New", command=open_second_window)
     filemenu.add_separator()
     filemenu.add_command(label="Exit", command=new_win.destroy)
 
-    save_button = ctk.CTkButton(new_win, text="Save", command=lambda: save_result_orm(state["orm"], entry_weight, entry))
+    save_button = ctk.CTkButton(new_win, text="Save", command=lambda: save_result_orm(state["orm"], entry_weight, entry), font=("JetBrains Mono", 16))
     save_button.pack(pady=10, side="top")
 
-    savemenu = tk.Menu(menu, tearoff=0)
+    savemenu = tk.Menu(menu, tearoff=0, font=("JetBrains Mono", 10))
     menu.add_cascade(label="Save", menu=savemenu)
     savemenu.add_command(label="Save result", command=lambda: save_result_orm(state["orm"], entry_weight, entry))
 
-    othermenu = tk.Menu(menu, tearoff=0)
+    othermenu = tk.Menu(menu, tearoff=0, font=("JetBrains Mono", 10))
     menu.add_cascade(label="Other", menu=othermenu)
     othermenu.add_command(label="One Rep Max calculator", command=open_onerep_max)
 
-    helpmenu = tk.Menu(menu, tearoff=0)
+    helpmenu = tk.Menu(menu, tearoff=0, font=("JetBrains Mono", 10))
     menu.add_cascade(label="Help", menu=helpmenu)
     helpmenu.add_command(label="About", command=url)
 
@@ -201,33 +203,35 @@ def open_second_window():
     new_win = ctk.CTkToplevel(root)
     state = {"loaded": []}
 
-    menu = tk.Menu(new_win, tearoff=0)
+    new_win.title("Kalkulator talerzy na sztangę")
+    new_win.geometry("600x400")
+    title_label = ctk.CTkLabel(new_win, text="Kalkulator talerzy", font=("JetBrains Mono", 16))
+    title_label.pack(pady=10)
+
+    menu = tk.Menu(new_win, tearoff=0, font=("JetBrains Mono", 10))
     new_win.config(menu=menu)
 
-    filemenu = tk.Menu(menu, tearoff=0)
+    filemenu = tk.Menu(menu, tearoff=0, font=("JetBrains Mono", 10))
     menu.add_cascade(label="File", menu=filemenu)
     filemenu.add_command(label="New", command=open_second_window)
     filemenu.add_separator()
     filemenu.add_command(label="Exit", command=new_win.destroy)
 
-    new_win.title("Kalkulator talerzy na sztangę")
-    new_win.geometry("600x400")
-    title_label = ctk.CTkLabel(new_win, text="Kalkulator talerzy", font=("Arial", 16))
-    title_label.pack(pady=10)
-
-    entry_label = ctk.CTkLabel(new_win, text="Podaj ciężar całkowity (kg):")
+    entry_label = ctk.CTkLabel(new_win, text="Podaj ciężar całkowity (kg):", font=("JetBrains Mono", 16))
     entry_label.pack()
-    entry = ctk.CTkEntry(new_win, font=("Arial", 16))
+    entry = ctk.CTkEntry(new_win, font=("JetBrains Mono", 16))
     entry.pack(pady=5)
-    result_label = ctk.CTkLabel(new_win, text="", font=("Arial", 16), wraplength=350)
+    result_label = ctk.CTkLabel(new_win, text="", font=("JetBrains Mono", 16), wraplength=350)
     calc_button = ctk.CTkButton(
         new_win, text="Przelicz",
-        command=lambda: calculate(entry, result_label, state)
+        command=lambda: calculate(entry, result_label, state),
+        font=("JetBrains Mono", 16),
+        hover_color="green"
     )
     calc_button.pack(pady=10)
     result_label.pack(pady=10)
 
-    save_button = ctk.CTkButton(new_win, text="Save", command=lambda: saveresult(entry, state))
+    save_button = ctk.CTkButton(new_win, text="Save", command=lambda: saveresult(entry, state), font=("JetBrains Mono", 16))
     save_button.pack(pady=10, side="top")
 
     savemenu = tk.Menu(menu, tearoff=0)
@@ -249,7 +253,7 @@ ctk.set_default_color_theme("blue")
 root = ctk.CTk()
 root_state = {"loaded": []}
 
-menu = tk.Menu(root, tearoff=0)
+menu = tk.Menu(root, tearoff=0, font=("JetBrains Mono", 10))
 root.config(menu=menu)
 filemenu = tk.Menu(menu, tearoff=0)
 menu.add_cascade(label="File", menu=filemenu)
@@ -272,20 +276,20 @@ helpmenu.add_command(label="About", command=url)
 root.title("Kalkulator talerzy na sztangę")
 root.geometry("600x400")
 root.resizable(True, True)
-title_label = ctk.CTkLabel(root, text="Kalkulator talerzy", font=("Arial", 16))
+title_label = ctk.CTkLabel(root, text="Kalkulator talerzy", font=("JetBrains Mono", 16))
 title_label.pack(pady=10)
-entry_label = ctk.CTkLabel(root, text="Podaj ciężar całkowity (kg):")
+entry_label = ctk.CTkLabel(root, text="Podaj ciężar całkowity (kg):", font=("JetBrains Mono", 16))
 entry_label.pack()
-entry = ctk.CTkEntry(root, font=("Arial", 16))
+entry = ctk.CTkEntry(root, font=("JetBrains Mono", 16))
 entry.pack(pady=5)
-result_label = ctk.CTkLabel(root, text="", font=("Arial", 16), wraplength=350)
+result_label = ctk.CTkLabel(root, text="", font=("JetBrains Mono", 16), wraplength=350)
 calc_button = ctk.CTkButton(
-    root, text="Przelicz", command=lambda: calculate(entry, result_label, root_state)
+    root, text="Przelicz", command=lambda: calculate(entry, result_label, root_state), hover=True, hover_color="green", font=("JetBrains Mono", 16)
 )
 calc_button.pack(pady=10)
 result_label.pack(pady=10)
 
-save_button = ctk.CTkButton(root, text="Save", command=lambda: saveresult(entry, root_state))
+save_button = ctk.CTkButton(root, text="Save", command=lambda: saveresult(entry, root_state), font=("JetBrains Mono", 16))
 save_button.pack(pady=10, side="top")
 
 root.mainloop()
