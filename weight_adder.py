@@ -7,7 +7,7 @@ from datetime import datetime
 from pathlib import Path
 from tkinter import messagebox
 
-
+topbar_apperance = {"bg": "#242424", "fg": "white", "border": 0, "activebackground": "System","activeforeground": "white"}
 def get_documents_folder() -> Path:
     home = Path.home()
 
@@ -142,7 +142,9 @@ def save_result_orm(orm, entry, entry_weight):
 def open_onerep_max():
     new_win = ctk.CTkToplevel(root)
     state = {"orm": None}
+
     menu = tk.Menu(new_win, tearoff=0, font=("JetBrains Mono", 10))
+    menu = tk.Menu(new_win, tearoff=0, font=("JetBrains Mono", 10), bg = "#242424", fg="white", border=0)
     new_win.config(menu=menu)
     new_win.title("Kalkulator One Rep Max")
     new_win.geometry("600x400")
@@ -177,7 +179,9 @@ def open_onerep_max():
     calc_button.pack(pady=10)
     result_label.pack(pady=10)
 
+
     filemenu = tk.Menu(menu, tearoff=0, font=("JetBrains Mono", 10))
+    filemenu = tk.Menu(menu, tearoff=0, font=("JetBrains Mono", 10), **topbar_apperance)
     menu.add_cascade(label="File", menu=filemenu)
     filemenu.add_command(label="New", command=open_second_window)
     filemenu.add_separator()
@@ -186,15 +190,23 @@ def open_onerep_max():
     save_button = ctk.CTkButton(new_win, text="Save", command=lambda: save_result_orm(state["orm"], entry_weight, entry), font=("JetBrains Mono", 16))
     save_button.pack(pady=10, side="top")
 
-    savemenu = tk.Menu(menu, tearoff=0, font=("JetBrains Mono", 10))
-    menu.add_cascade(label="Save", menu=savemenu)
-    savemenu.add_command(label="Save result", command=lambda: save_result_orm(state["orm"], entry_weight, entry))
 
+    savemenu = tk.Menu(menu, tearoff=0, font=("JetBrains Mono", 10))
+    savemenu.add_command(label="Save result", command=lambda: save_result_orm(state["orm"], entry_weight, entry))
     othermenu = tk.Menu(menu, tearoff=0, font=("JetBrains Mono", 10))
     menu.add_cascade(label="Other", menu=othermenu)
     othermenu.add_command(label="One Rep Max calculator", command=open_onerep_max)
 
     helpmenu = tk.Menu(menu, tearoff=0, font=("JetBrains Mono", 10))
+    savemenu = tk.Menu(menu, tearoff=0, font=("JetBrains Mono", 10), **topbar_apperance)
+    menu.add_cascade(label="Save", menu=savemenu)
+    savemenu.add_command(label="Save result", command=lambda: save_result_orm(state["orm"], entry_weight, entry))
+
+    othermenu = tk.Menu(menu, tearoff=0, font=("JetBrains Mono", 10), **topbar_apperance)
+    menu.add_cascade(label="Other", menu=othermenu)
+    othermenu.add_command(label="One Rep Max calculator", command=open_onerep_max)
+
+    helpmenu = tk.Menu(menu, tearoff=0, font=("JetBrains Mono", 10), **topbar_apperance)
     menu.add_cascade(label="Help", menu=helpmenu)
     helpmenu.add_command(label="About", command=url)
 
@@ -208,10 +220,13 @@ def open_second_window():
     title_label = ctk.CTkLabel(new_win, text="Kalkulator talerzy", font=("JetBrains Mono", 16))
     title_label.pack(pady=10)
 
+
     menu = tk.Menu(new_win, tearoff=0, font=("JetBrains Mono", 10))
+
+    menu = tk.Menu(new_win, tearoff=0, font=("JetBrains Mono", 10), bg = "#242424", fg="white", border=0)
     new_win.config(menu=menu)
 
-    filemenu = tk.Menu(menu, tearoff=0, font=("JetBrains Mono", 10))
+    filemenu = tk.Menu(menu, tearoff=0, font=("JetBrains Mono", 10), **topbar_apperance)
     menu.add_cascade(label="File", menu=filemenu)
     filemenu.add_command(label="New", command=open_second_window)
     filemenu.add_separator()
@@ -234,15 +249,15 @@ def open_second_window():
     save_button = ctk.CTkButton(new_win, text="Save", command=lambda: saveresult(entry, state), font=("JetBrains Mono", 16))
     save_button.pack(pady=10, side="top")
 
-    savemenu = tk.Menu(menu, tearoff=0)
+    savemenu = tk.Menu(menu, tearoff=0, **topbar_apperance)
     menu.add_cascade(label="Save", menu=savemenu)
     savemenu.add_command(label="Save result", command=lambda: saveresult(entry, state))
 
-    othermenu = tk.Menu(menu, tearoff=0)
+    othermenu = tk.Menu(menu, tearoff=0, **topbar_apperance)
     menu.add_cascade(label="Other", menu=othermenu)
     othermenu.add_command(label="One Rep Max calculator", command=open_onerep_max)
 
-    helpmenu = tk.Menu(menu, tearoff=0)
+    helpmenu = tk.Menu(menu, tearoff=0, **topbar_apperance)
     menu.add_cascade(label="Help", menu=helpmenu)
     helpmenu.add_command(label="About", command=url)
 
@@ -253,23 +268,25 @@ ctk.set_default_color_theme("blue")
 root = ctk.CTk()
 root_state = {"loaded": []}
 
+
 menu = tk.Menu(root, tearoff=0, font=("JetBrains Mono", 10))
+menu = tk.Menu(root, tearoff=0, font=("JetBrains Mono", 10), **topbar_apperance)
 root.config(menu=menu)
-filemenu = tk.Menu(menu, tearoff=0)
+filemenu = tk.Menu(menu, tearoff=0, **topbar_apperance)
 menu.add_cascade(label="File", menu=filemenu)
 filemenu.add_command(label="New", command=open_second_window)
 filemenu.add_separator()
 filemenu.add_command(label="Exit", command=root.quit)
 
-savemenu = tk.Menu(menu, tearoff=0)
+savemenu = tk.Menu(menu, tearoff=0, **topbar_apperance)
 menu.add_cascade(label="Save", menu=savemenu)
 savemenu.add_command(label="Save result", command=lambda: saveresult(entry, root_state))
 
-othermenu = tk.Menu(menu, tearoff=0)
+othermenu = tk.Menu(menu, tearoff=0, **topbar_apperance)
 menu.add_cascade(label="Other", menu=othermenu)
 othermenu.add_command(label="One Rep Max calculator", command=open_onerep_max)
 
-helpmenu = tk.Menu(menu, tearoff=0)
+helpmenu = tk.Menu(menu, tearoff=0, **topbar_apperance)
 menu.add_cascade(label="Help", menu=helpmenu)
 helpmenu.add_command(label="About", command=url)
 
