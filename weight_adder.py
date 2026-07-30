@@ -262,7 +262,6 @@ def open_second_window():
     help_dd = new_dropdown(help_btn)
     help_dd.add_option(option="About", command=url)
 
-
 def apperance_mode(switch_value):
     if switch_value == "on":
         ctk.set_appearance_mode("dark")
@@ -319,7 +318,7 @@ def switch_event():
 switch_var = ctk.StringVar(value="on")
 switch = ctk.CTkSwitch(root, text="CTkSwitch", command=switch_event, variable=switch_var, onvalue="on", offvalue="off")
 switch.pack(pady=10)
-apperance_mode("on")  # start in dark mode to match switch_var default, and build menus with dark colors
+apperance_mode("on")
 save_button = ctk.CTkButton(root, text="Save", command=lambda: saveresult(entry, root_state), font=("JetBrains Mono", 16))
 save_button.pack(pady=10, side="top")
 root.update()
