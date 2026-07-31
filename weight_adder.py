@@ -159,6 +159,26 @@ def open_onerep_max():
     new_win = ctk.CTkToplevel(root)
     state = {"orm": None}
 
+    menu_bar = new_menu_bar(new_win)
+
+    file_btn = menu_bar.add_cascade("File")
+    file_dd = new_dropdown(file_btn)
+    file_dd.add_option(option="New", command=open_second_window)
+    file_dd.add_separator()
+    file_dd.add_option(option="Exit", command=new_win.destroy)
+
+    save_btn = menu_bar.add_cascade("Save")
+    save_dd = new_dropdown(save_btn)
+    save_dd.add_option(option="Save result", command=lambda: save_result_orm(state["orm"], entry_weight, entry))
+
+    other_btn = menu_bar.add_cascade("Other")
+    other_dd = new_dropdown(other_btn)
+    other_dd.add_option(option="One Rep Max calculator", command=open_onerep_max)
+
+    help_btn = menu_bar.add_cascade("Help")
+    help_dd = new_dropdown(help_btn)
+    help_dd.add_option(option="About", command=url)
+
     new_win.title("Kalkulator One Rep Max")
     new_win.geometry("600x400")
     title = ctk.CTkLabel(new_win, text="Kalkulator One Rep Max", font=("JetBrains Mono", 16))
@@ -191,56 +211,16 @@ def open_onerep_max():
     )
     calc_button.pack(pady=10)
     result_label.pack(pady=10)
-
+    dark_mode_switch(new_win)
     save_button = ctk.CTkButton(new_win, text="Save", command=lambda: save_result_orm(state["orm"], entry_weight, entry), font=("JetBrains Mono", 16))
     save_button.pack(pady=10, side="top")
 
-    menu_bar = new_menu_bar(new_win)
 
-    file_btn = menu_bar.add_cascade("File")
-    file_dd = new_dropdown(file_btn)
-    file_dd.add_option(option="New", command=open_second_window)
-    file_dd.add_separator()
-    file_dd.add_option(option="Exit", command=new_win.destroy)
-
-    save_btn = menu_bar.add_cascade("Save")
-    save_dd = new_dropdown(save_btn)
-    save_dd.add_option(option="Save result", command=lambda: save_result_orm(state["orm"], entry_weight, entry))
-
-    other_btn = menu_bar.add_cascade("Other")
-    other_dd = new_dropdown(other_btn)
-    other_dd.add_option(option="One Rep Max calculator", command=open_onerep_max)
-
-    help_btn = menu_bar.add_cascade("Help")
-    help_dd = new_dropdown(help_btn)
-    help_dd.add_option(option="About", command=url)
 
 
 def open_second_window():
     new_win = ctk.CTkToplevel(root)
     state = {"loaded": []}
-
-    new_win.title("Kalkulator talerzy na sztangę")
-    new_win.geometry("600x400")
-    title_label = ctk.CTkLabel(new_win, text="Kalkulator talerzy", font=("JetBrains Mono", 16))
-    title_label.pack(pady=10)
-
-    entry_label = ctk.CTkLabel(new_win, text="Podaj ciężar całkowity (kg):", font=("JetBrains Mono", 16))
-    entry_label.pack()
-    entry = ctk.CTkEntry(new_win, font=("JetBrains Mono", 16))
-    entry.pack(pady=5)
-    result_label = ctk.CTkLabel(new_win, text="", font=("JetBrains Mono", 16), wraplength=350)
-    calc_button = ctk.CTkButton(
-        new_win, text="Przelicz",
-        command=lambda: calculate(entry, result_label, state),
-        font=("JetBrains Mono", 16),
-        hover_color="green"
-    )
-    calc_button.pack(pady=10)
-    result_label.pack(pady=10)
-
-    save_button = ctk.CTkButton(new_win, text="Save", command=lambda: saveresult(entry, state), font=("JetBrains Mono", 16))
-    save_button.pack(pady=10, side="top")
 
     menu_bar = new_menu_bar(new_win)
 
@@ -261,6 +241,31 @@ def open_second_window():
     help_btn = menu_bar.add_cascade("Help")
     help_dd = new_dropdown(help_btn)
     help_dd.add_option(option="About", command=url)
+
+    new_win.title("Kalkulator talerzy na sztangę")
+    new_win.geometry("600x400")
+    title_label = ctk.CTkLabel(new_win, text="Kalkulator talerzy", font=("JetBrains Mono", 16))
+    title_label.pack(pady=10)
+
+    entry_label = ctk.CTkLabel(new_win, text="Podaj ciężar całkowity (kg):", font=("JetBrains Mono", 16))
+    entry_label.pack()
+    entry = ctk.CTkEntry(new_win, font=("JetBrains Mono", 16))
+    entry.pack(pady=5)
+    result_label = ctk.CTkLabel(new_win, text="", font=("JetBrains Mono", 16), wraplength=350)
+    calc_button = ctk.CTkButton(
+        new_win, text="Przelicz",
+        command=lambda: calculate(entry, result_label, state),
+        font=("JetBrains Mono", 16),
+        hover_color="green"
+    )
+    calc_button.pack(pady=10)
+    result_label.pack(pady=10)
+    dark_mode_switch(new_win)
+    save_button = ctk.CTkButton(new_win, text="Save", command=lambda: saveresult(entry, root_state), font=("JetBrains Mono", 16))
+    save_button.pack(pady=10, side="top")
+
+
+
 
 def apperance_mode(switch_value):
     if switch_value == "on":
@@ -310,17 +315,18 @@ calc_button = ctk.CTkButton(
 )
 calc_button.pack(pady=10)
 result_label.pack(pady=10)
-def switch_event():
-    print("switch toggled, current value:", switch_var.get())
-    apperance_mode(switch_var.get())
-    root.update()
+def dark_mode_switch(window):
+    def switch_event():
+        apperance_mode(switch_var.get())
+        window.update()
 
-switch_var = ctk.StringVar(value="on")
-switch = ctk.CTkSwitch(root, text="CTkSwitch", command=switch_event, variable=switch_var, onvalue="on", offvalue="off")
-switch.pack(pady=10)
-apperance_mode("on")
+    switch_var = ctk.StringVar(value="on")
+    switch = ctk.CTkSwitch(window, text="Tryb ciemny", command=switch_event, variable=switch_var, onvalue="on", offvalue="off")
+    switch.pack(pady=10)
+    apperance_mode("on")
+    window.update()
+
+dark_mode_switch(root)
 save_button = ctk.CTkButton(root, text="Save", command=lambda: saveresult(entry, root_state), font=("JetBrains Mono", 16))
 save_button.pack(pady=10, side="top")
-root.update()
-
 root.mainloop()
