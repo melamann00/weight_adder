@@ -13,6 +13,79 @@ MB_HOVER_COLOR = ("#c6c6c6", "#333333")         # hover highlight
 MB_DROPDOWN_BG = ("#ebebeb", "#2b2b2b")         # dropdown panel background
 MB_SEPARATOR_COLOR = ("#bfbfbf", "#3f3f3f")     # separator line in dropdown
 
+# ==========================================
+# 1. SŁOWNIK TŁUMACZEŃ I ZMIENNA JĘZYKA
+# ==========================================
+current_language = "pl"
+
+translations = {
+    "pl": {
+        "app_title_plates": "Kalkulator talerzy na sztangę",
+        "title_plates": "Kalkulator talerzy",
+        "enter_total_weight": "Podaj ciężar całkowity (kg):",
+        "btn_calc": "Przelicz",
+        "btn_save": "Zapisz",
+        "dark_mode": "Tryb ciemny",
+        "app_title_orm": "Kalkulator One Rep Max",
+        "title_orm": "Kalkulator One Rep Max",
+        "enter_weight": "Podaj ciężar (kg):",
+        "enter_reps": "Podaj ilość powtórzeń:",
+        "orm_result_prefix": "One Rep Max: ",
+        "menu_file": "Plik",
+        "menu_new": "Nowy",
+        "menu_exit": "Zakończ",
+        "menu_save": "Zapisz",
+        "menu_save_result": "Zapisz wynik",
+        "menu_other": "Inne",
+        "menu_orm_calc": "Kalkulator One Rep Max",
+        "menu_help": "Pomoc",
+        "menu_about": "O programie",
+        "menu_language": "Język",
+        "error_title": "Błąd",
+        "err_weight_too_low": "Ciężar musi być większy lub równy 20 kg.",
+        "err_weight_too_high": "Podano zbyt duży ciężar.",
+        "err_invalid_number": "Podaj poprawną liczbę.",
+        "err_invalid_values": "Podaj poprawne wartości.",
+        "msg_no_weight": "Brak ciężaru do załadowania",
+        "msg_cannot_load_exact": "Nie można dokładnie załadować takiego ciężaru.",
+        "msg_plates_per_side": "Talerze na jedną stronę:\n"
+    },
+    "en": {
+        "app_title_plates": "Barbell Plates Calculator",
+        "title_plates": "Plates Calculator",
+        "enter_total_weight": "Enter total weight (kg):",
+        "btn_calc": "Calculate",
+        "btn_save": "Save",
+        "dark_mode": "Dark mode",
+        "app_title_orm": "One Rep Max Calculator",
+        "title_orm": "One Rep Max Calculator",
+        "enter_weight": "Enter weight (kg):",
+        "enter_reps": "Enter number of reps:",
+        "orm_result_prefix": "One Rep Max: ",
+        "menu_file": "File",
+        "menu_new": "New",
+        "menu_exit": "Exit",
+        "menu_save": "Save",
+        "menu_save_result": "Save result",
+        "menu_other": "Other",
+        "menu_orm_calc": "One Rep Max calculator",
+        "menu_help": "Help",
+        "menu_about": "About",
+        "menu_language": "Language",
+        "error_title": "Error",
+        "err_weight_too_low": "Weight must be greater than or equal to 20 kg.",
+        "err_weight_too_high": "Weight provided is too heavy.",
+        "err_invalid_number": "Enter a valid number.",
+        "err_invalid_values": "Enter valid values.",
+        "msg_no_weight": "No weight to load",
+        "msg_cannot_load_exact": "Cannot load this exact weight.",
+        "msg_plates_per_side": "Plates per side:\n"
+    }
+}
+
+# ==========================================
+# 2. LOGIKA I FUNKCJE BAZOWE
+# ==========================================
 def new_menu_bar(win):
     return CTkMenuBar(master=win, bg_color=MB_BAR_COLOR)
 
@@ -74,7 +147,6 @@ documents_path = get_documents_folder() / "weight-adder"
 os.makedirs(documents_path.parent, exist_ok=True)
 weights = [25, 20, 15, 10, 5, 2.5, 1.25, 0.5, 0.25]
 BAR_WEIGHT = 20
-loaded = []
 
 def url():
     webbrowser.open("https://github.com/melamann00/weight_adder")
@@ -90,13 +162,13 @@ def calculate(entry_widget, result_label_widget, state):
     try:
         wanted = float(entry_widget.get())
         if wanted < BAR_WEIGHT:
-            messagebox.showerror("Błąd", "Ciężar musi być większy lub równy 20 kg.")
+            messagebox.showerror(translations[current_language]["error_title"], translations[current_language]["err_weight_too_low"])
             return
         elif wanted > 700:
-            messagebox.showerror("Błąd", "Podano zbyt duży ciężar.")
+            messagebox.showerror(translations[current_language]["error_title"], translations[current_language]["err_weight_too_high"])
             return
         if wanted == BAR_WEIGHT:
-            result_label_widget.configure(text="Brak ciężaru do załadowania")
+            result_label_widget.configure(text=translations[current_language]["msg_no_weight"])
             state["loaded"] = []
             return
 
@@ -110,18 +182,14 @@ def calculate(entry_widget, result_label_widget, state):
                 weight_per_side -= weight
 
         if weight_per_side > 0.001:
-            result_label_widget.configure(
-                text="Nie można dokładnie załadować takiego ciężaru."
-            )
+            result_label_widget.configure(text=translations[current_language]["msg_cannot_load_exact"])
             state["loaded"] = []
         else:
-            result_label_widget.configure(
-                text="Talerze na jedną stronę:\n" + " | ".join(map(str, loaded))
-            )
+            result_label_widget.configure(text=translations[current_language]["msg_plates_per_side"] + " | ".join(map(str, loaded)))
             state["loaded"] = loaded
 
     except ValueError:
-        messagebox.showerror("Błąd", "Podaj poprawną liczbę.")
+        messagebox.showerror(translations[current_language]["error_title"], translations[current_language]["err_invalid_number"])
         state["loaded"] = []
 
 def temp_result(state):
@@ -154,41 +222,48 @@ def save_result_orm(orm, entry, entry_weight):
             +" reps\n"
         )
 
-
+# ==========================================
+# 3. INTERFEJS UŻYTKOWNIKA - DODATKOWE OKNA
+# ==========================================
 def open_onerep_max():
     new_win = ctk.CTkToplevel(root)
     state = {"orm": None}
 
     menu_bar = new_menu_bar(new_win)
 
-    file_btn = menu_bar.add_cascade("File")
+    file_btn = menu_bar.add_cascade(translations[current_language]["menu_file"])
     file_dd = new_dropdown(file_btn)
-    file_dd.add_option(option="New", command=open_second_window)
+    file_dd.add_option(option=translations[current_language]["menu_new"], command=open_second_window)
     file_dd.add_separator()
-    file_dd.add_option(option="Exit", command=new_win.destroy)
+    file_dd.add_option(option=translations[current_language]["menu_exit"], command=new_win.destroy)
 
-    save_btn = menu_bar.add_cascade("Save")
+    save_btn = menu_bar.add_cascade(translations[current_language]["menu_save"])
     save_dd = new_dropdown(save_btn)
-    save_dd.add_option(option="Save result", command=lambda: save_result_orm(state["orm"], entry_weight, entry))
+    save_dd.add_option(option=translations[current_language]["menu_save_result"], command=lambda: save_result_orm(state["orm"], entry_weight, entry))
 
-    other_btn = menu_bar.add_cascade("Other")
+    other_btn = menu_bar.add_cascade(translations[current_language]["menu_other"])
     other_dd = new_dropdown(other_btn)
-    other_dd.add_option(option="One Rep Max calculator", command=open_onerep_max)
+    other_dd.add_option(option=translations[current_language]["menu_orm_calc"], command=open_onerep_max)
+    
+    lang_btn = menu_bar.add_cascade(translations[current_language]["menu_language"])
+    lang_dd = new_dropdown(lang_btn)
+    lang_dd.add_option(option="Polski", command=lambda: set_language("pl"))
+    lang_dd.add_option(option="English", command=lambda: set_language("en"))
 
-    help_btn = menu_bar.add_cascade("Help")
+    help_btn = menu_bar.add_cascade(translations[current_language]["menu_help"])
     help_dd = new_dropdown(help_btn)
-    help_dd.add_option(option="About", command=url)
+    help_dd.add_option(option=translations[current_language]["menu_about"], command=url)
 
-    new_win.title("Kalkulator One Rep Max")
+    new_win.title(translations[current_language]["title_orm"])
     new_win.geometry("600x400")
-    title = ctk.CTkLabel(new_win, text="Kalkulator One Rep Max", font=("JetBrains Mono", 16))
+    title = ctk.CTkLabel(new_win, text=translations[current_language]["title_orm"], font=("JetBrains Mono", 16))
     title.pack(pady=10)
-    weight_reps = ctk.CTkLabel(new_win, text="Podaj ciężar (kg):", font=("JetBrains Mono", 16))
-    weight_reps.pack()
+    weight_label = ctk.CTkLabel(new_win, text=translations[current_language]["enter_weight"], font=("JetBrains Mono", 16))
+    weight_label.pack()
     entry = ctk.CTkEntry(new_win, font=("JetBrains Mono", 16))
     entry.pack(pady=5)
-    weight_reps = ctk.CTkLabel(new_win, text="Podaj ilość powtórzeń:", font=("JetBrains Mono", 16))
-    weight_reps.pack()
+    reps_label = ctk.CTkLabel(new_win, text=translations[current_language]["enter_reps"], font=("JetBrains Mono", 16))
+    reps_label.pack()
     entry_weight = ctk.CTkEntry(new_win, font=("JetBrains Mono", 16))
     entry_weight.pack(pady=5)
     result_label = ctk.CTkLabel(new_win, text="", font=("JetBrains Mono", 16), wraplength=350)
@@ -197,24 +272,27 @@ def open_onerep_max():
         try:
             orm = strength_calculator(float(entry.get()), int(entry_weight.get()))
             state["orm"] = orm
-            result_label.configure(text=f"One Rep Max: {orm} kg")
+            result_label.configure(text=f"{translations[current_language]['orm_result_prefix']} {orm} kg")
         except ValueError:
             state["orm"] = None
-            messagebox.showerror("Błąd", "Podaj poprawne wartości.")
+            messagebox.showerror(translations[current_language]["error_title"], translations[current_language]["err_invalid_values"])
 
     calc_button = ctk.CTkButton(
         new_win,
-        text="Przelicz",
+        text=translations[current_language]["btn_calc"],
         command=lambda: orm_result(),
         font=("JetBrains Mono", 16),
         hover_color="green"
     )
     calc_button.pack(pady=10)
     result_label.pack(pady=10)
-    dark_mode_switch(new_win)
-    save_button = ctk.CTkButton(new_win, text="Save", command=lambda: save_result_orm(state["orm"], entry_weight, entry), font=("JetBrains Mono", 16))
+    
+    switch_var = ctk.StringVar(value="on")
+    switch = ctk.CTkSwitch(new_win, text=translations[current_language]["dark_mode"], command=lambda: apperance_mode(switch_var.get()), variable=switch_var, onvalue="on", offvalue="off")
+    switch.pack(pady=10)
+    
+    save_button = ctk.CTkButton(new_win, text=translations[current_language]["btn_save"], command=lambda: save_result_orm(state["orm"], entry_weight, entry), font=("JetBrains Mono", 16))
     save_button.pack(pady=10, side="top")
-
 
 def open_second_window():
     new_win = ctk.CTkToplevel(root)
@@ -222,47 +300,55 @@ def open_second_window():
 
     menu_bar = new_menu_bar(new_win)
 
-    file_btn = menu_bar.add_cascade("File")
+    file_btn = menu_bar.add_cascade(translations[current_language]["menu_file"])
     file_dd = new_dropdown(file_btn)
-    file_dd.add_option(option="New", command=open_second_window)
+    file_dd.add_option(option=translations[current_language]["menu_new"], command=open_second_window)
     file_dd.add_separator()
-    file_dd.add_option(option="Exit", command=new_win.destroy)
+    file_dd.add_option(option=translations[current_language]["menu_exit"], command=new_win.destroy)
 
-    save_btn = menu_bar.add_cascade("Save")
+    save_btn = menu_bar.add_cascade(translations[current_language]["menu_save"])
     save_dd = new_dropdown(save_btn)
-    save_dd.add_option(option="Save result", command=lambda: saveresult(entry, state))
+    save_dd.add_option(option=translations[current_language]["menu_save_result"], command=lambda: saveresult(entry, state))
 
-    other_btn = menu_bar.add_cascade("Other")
+    other_btn = menu_bar.add_cascade(translations[current_language]["menu_other"])
     other_dd = new_dropdown(other_btn)
-    other_dd.add_option(option="One Rep Max calculator", command=open_onerep_max)
+    other_dd.add_option(option=translations[current_language]["menu_orm_calc"], command=open_onerep_max)
+    
+    lang_btn = menu_bar.add_cascade(translations[current_language]["menu_language"])
+    lang_dd = new_dropdown(lang_btn)
+    lang_dd.add_option(option="Polski", command=lambda: set_language("pl"))
+    lang_dd.add_option(option="English", command=lambda: set_language("en"))
 
-    help_btn = menu_bar.add_cascade("Help")
+    help_btn = menu_bar.add_cascade(translations[current_language]["menu_help"])
     help_dd = new_dropdown(help_btn)
-    help_dd.add_option(option="About", command=url)
+    help_dd.add_option(option=translations[current_language]["menu_about"], command=url)
 
-    new_win.title("Kalkulator talerzy na sztangę")
+    new_win.title(translations[current_language]["app_title_plates"])
     new_win.geometry("600x400")
-    title_label = ctk.CTkLabel(new_win, text="Kalkulator talerzy", font=("JetBrains Mono", 16))
+    title_label = ctk.CTkLabel(new_win, text=translations[current_language]["title_plates"], font=("JetBrains Mono", 16))
     title_label.pack(pady=10)
 
-    entry_label = ctk.CTkLabel(new_win, text="Podaj ciężar całkowity (kg):", font=("JetBrains Mono", 16))
+    entry_label = ctk.CTkLabel(new_win, text=translations[current_language]["enter_total_weight"], font=("JetBrains Mono", 16))
     entry_label.pack()
     entry = ctk.CTkEntry(new_win, font=("JetBrains Mono", 16))
     entry.pack(pady=5)
     result_label = ctk.CTkLabel(new_win, text="", font=("JetBrains Mono", 16), wraplength=350)
+    
     calc_button = ctk.CTkButton(
-        new_win, text="Przelicz",
+        new_win, text=translations[current_language]["btn_calc"],
         command=lambda: calculate(entry, result_label, state),
         font=("JetBrains Mono", 16),
         hover_color="green"
     )
     calc_button.pack(pady=10)
     result_label.pack(pady=10)
-    dark_mode_switch(new_win)
-    save_button = ctk.CTkButton(new_win, text="Save", command=lambda: saveresult(entry, root_state), font=("JetBrains Mono", 16))
+    
+    switch_var = ctk.StringVar(value="on")
+    switch = ctk.CTkSwitch(new_win, text=translations[current_language]["dark_mode"], command=lambda: apperance_mode(switch_var.get()), variable=switch_var, onvalue="on", offvalue="off")
+    switch.pack(pady=10)
+    
+    save_button = ctk.CTkButton(new_win, text=translations[current_language]["btn_save"], command=lambda: saveresult(entry, root_state), font=("JetBrains Mono", 16))
     save_button.pack(pady=10, side="top")
-
-
 
 
 def apperance_mode(switch_value):
@@ -273,58 +359,83 @@ def apperance_mode(switch_value):
     else:
         ctk.set_appearance_mode("System")
 
-ctk.set_default_color_theme("blue")
+def set_language(lang_code):
+    global current_language
+    current_language = lang_code
+    update_main_window_lang()
 
+def update_main_window_lang():
+    root.title(translations[current_language]["app_title_plates"])
+    title_label.configure(text=translations[current_language]["title_plates"])
+    entry_label.configure(text=translations[current_language]["enter_total_weight"])
+    calc_button.configure(text=translations[current_language]["btn_calc"])
+    save_button.configure(text=translations[current_language]["btn_save"])
+    switch.configure(text=translations[current_language]["dark_mode"])
+    result_label.configure(text="") # Czyści stary wynik przy zmianie języka
+    # Uwaga: Biblioteka CTkMenuBarPlus nie pozwala na łatwe przeładowanie samych napisów w menu,
+    # nowe teksty w menu pojawią się w nowo otwartych oknach (lub przy restarcie aplikacji).
+
+# ==========================================
+# 4. GŁÓWNE OKNO (ROOT)
+# ==========================================
+ctk.set_default_color_theme("blue")
 root = ctk.CTk()
 root_state = {"loaded": []}
 
 root_menu_bar = new_menu_bar(root)
 
-root_file_btn = root_menu_bar.add_cascade("File")
+root_file_btn = root_menu_bar.add_cascade(translations[current_language]["menu_file"])
 root_file_dd = new_dropdown(root_file_btn)
-root_file_dd.add_option(option="New", command=open_second_window)
+root_file_dd.add_option(option=translations[current_language]["menu_new"], command=open_second_window)
 root_file_dd.add_separator()
-root_file_dd.add_option(option="Exit", command=root.quit)
+root_file_dd.add_option(option=translations[current_language]["menu_exit"], command=root.quit)
 
-root_save_btn = root_menu_bar.add_cascade("Save")
+root_save_btn = root_menu_bar.add_cascade(translations[current_language]["menu_save"])
 root_save_dd = new_dropdown(root_save_btn)
-root_save_dd.add_option(option="Save result", command=lambda: saveresult(entry, root_state))
+root_save_dd.add_option(option=translations[current_language]["menu_save_result"], command=lambda: saveresult(entry, root_state))
 
-root_other_btn = root_menu_bar.add_cascade("Other")
+root_other_btn = root_menu_bar.add_cascade(translations[current_language]["menu_other"])
 root_other_dd = new_dropdown(root_other_btn)
-root_other_dd.add_option(option="One Rep Max calculator", command=open_onerep_max)
+root_other_dd.add_option(option=translations[current_language]["menu_orm_calc"], command=open_onerep_max)
 
-root_help_btn = root_menu_bar.add_cascade("Help")
+root_lang_btn = root_menu_bar.add_cascade(translations[current_language]["menu_language"])
+root_lang_dd = new_dropdown(root_lang_btn)
+root_lang_dd.add_option(option="Polski", command=lambda: set_language("pl"))
+root_lang_dd.add_option(option="English", command=lambda: set_language("en"))
+
+root_help_btn = root_menu_bar.add_cascade(translations[current_language]["menu_help"])
 root_help_dd = new_dropdown(root_help_btn)
-root_help_dd.add_option(option="About", command=url)
+root_help_dd.add_option(option=translations[current_language]["menu_about"], command=url)
 
-root.title("Kalkulator talerzy na sztangę")
+
+root.title(translations[current_language]["app_title_plates"])
 root.geometry("600x400")
 root.resizable(True, True)
-title_label = ctk.CTkLabel(root, text="Kalkulator  talerzy", font=("JetBrains Mono", 16))
+
+title_label = ctk.CTkLabel(root, text=translations[current_language]["title_plates"], font=("JetBrains Mono", 16))
 title_label.pack(pady=10)
-entry_label = ctk.CTkLabel(root, text="Podaj ciężar całkowity (kg):", font=("JetBrains Mono", 16))
+
+entry_label = ctk.CTkLabel(root, text=translations[current_language]["enter_total_weight"], font=("JetBrains Mono", 16))
 entry_label.pack()
+
 entry = ctk.CTkEntry(root, font=("JetBrains Mono", 16))
 entry.pack(pady=5)
+
 result_label = ctk.CTkLabel(root, text="", font=("JetBrains Mono", 16), wraplength=350)
+
 calc_button = ctk.CTkButton(
-    root, text="Przelicz", command=lambda: calculate(entry, result_label, root_state), hover=True, hover_color="green", font=("JetBrains Mono", 16)
+    root, text=translations[current_language]["btn_calc"], command=lambda: calculate(entry, result_label, root_state), hover=True, hover_color="green", font=("JetBrains Mono", 16)
 )
 calc_button.pack(pady=10)
 result_label.pack(pady=10)
-def dark_mode_switch(window):
-    def switch_event():
-        apperance_mode(switch_var.get())
-        window.update()
 
-    switch_var = ctk.StringVar(value="on")
-    switch = ctk.CTkSwitch(window, text="Tryb ciemny", command=switch_event, variable=switch_var, onvalue="on", offvalue="off")
-    switch.pack(pady=10)
-    apperance_mode("on")
-    window.update()
 
-dark_mode_switch(root)
-save_button = ctk.CTkButton(root, text="Save", command=lambda: saveresult(entry, root_state), font=("JetBrains Mono", 16))
+switch_var = ctk.StringVar(value="on")
+switch = ctk.CTkSwitch(root, text=translations[current_language]["dark_mode"], command=lambda: apperance_mode(switch_var.get()), variable=switch_var, onvalue="on", offvalue="off")
+switch.pack(pady=10)
+apperance_mode("on")
+
+save_button = ctk.CTkButton(root, text=translations[current_language]["btn_save"], command=lambda: saveresult(entry, root_state), font=("JetBrains Mono", 16))
 save_button.pack(pady=10, side="top")
+
 root.mainloop()
