@@ -216,8 +216,6 @@ def open_onerep_max():
     save_button.pack(pady=10, side="top")
 
 
-
-
 def open_second_window():
     new_win = ctk.CTkToplevel(root)
     state = {"loaded": []}
@@ -303,7 +301,7 @@ root_help_dd.add_option(option="About", command=url)
 root.title("Kalkulator talerzy na sztangę")
 root.geometry("600x400")
 root.resizable(True, True)
-title_label = ctk.CTkLabel(root, text="Kalkulator talerzy", font=("JetBrains Mono", 16))
+title_label = ctk.CTkLabel(root, text="Kalkulator  talerzy", font=("JetBrains Mono", 16))
 title_label.pack(pady=10)
 entry_label = ctk.CTkLabel(root, text="Podaj ciężar całkowity (kg):", font=("JetBrains Mono", 16))
 entry_label.pack()
