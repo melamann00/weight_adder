@@ -13,9 +13,6 @@ MB_HOVER_COLOR = ("#c6c6c6", "#333333")         # hover highlight
 MB_DROPDOWN_BG = ("#ebebeb", "#2b2b2b")         # dropdown panel background
 MB_SEPARATOR_COLOR = ("#bfbfbf", "#3f3f3f")     # separator line in dropdown
 
-# ==========================================
-# 1. SŁOWNIK TŁUMACZEŃ I ZMIENNA JĘZYKA
-# ==========================================
 current_language = "pl"
 
 translations = {
@@ -83,9 +80,6 @@ translations = {
     }
 }
 
-# ==========================================
-# 2. LOGIKA I FUNKCJE BAZOWE
-# ==========================================
 def new_menu_bar(win):
     return CTkMenuBar(master=win, bg_color=MB_BAR_COLOR)
 
@@ -222,9 +216,6 @@ def save_result_orm(orm, entry, entry_weight):
             +" reps\n"
         )
 
-# ==========================================
-# 3. INTERFEJS UŻYTKOWNIKA - DODATKOWE OKNA
-# ==========================================
 def open_onerep_max():
     new_win = ctk.CTkToplevel(root)
     state = {"orm": None}
@@ -371,13 +362,8 @@ def update_main_window_lang():
     calc_button.configure(text=translations[current_language]["btn_calc"])
     save_button.configure(text=translations[current_language]["btn_save"])
     switch.configure(text=translations[current_language]["dark_mode"])
-    result_label.configure(text="") # Czyści stary wynik przy zmianie języka
-    # Uwaga: Biblioteka CTkMenuBarPlus nie pozwala na łatwe przeładowanie samych napisów w menu,
-    # nowe teksty w menu pojawią się w nowo otwartych oknach (lub przy restarcie aplikacji).
+    result_label.configure(text="")
 
-# ==========================================
-# 4. GŁÓWNE OKNO (ROOT)
-# ==========================================
 ctk.set_default_color_theme("blue")
 root = ctk.CTk()
 root_state = {"loaded": []}
@@ -407,34 +393,25 @@ root_help_btn = root_menu_bar.add_cascade(translations[current_language]["menu_h
 root_help_dd = new_dropdown(root_help_btn)
 root_help_dd.add_option(option=translations[current_language]["menu_about"], command=url)
 
-
 root.title(translations[current_language]["app_title_plates"])
 root.geometry("600x400")
 root.resizable(True, True)
-
 title_label = ctk.CTkLabel(root, text=translations[current_language]["title_plates"], font=("JetBrains Mono", 16))
 title_label.pack(pady=10)
-
 entry_label = ctk.CTkLabel(root, text=translations[current_language]["enter_total_weight"], font=("JetBrains Mono", 16))
 entry_label.pack()
-
 entry = ctk.CTkEntry(root, font=("JetBrains Mono", 16))
 entry.pack(pady=5)
-
 result_label = ctk.CTkLabel(root, text="", font=("JetBrains Mono", 16), wraplength=350)
-
 calc_button = ctk.CTkButton(
     root, text=translations[current_language]["btn_calc"], command=lambda: calculate(entry, result_label, root_state), hover=True, hover_color="green", font=("JetBrains Mono", 16)
 )
 calc_button.pack(pady=10)
 result_label.pack(pady=10)
-
-
 switch_var = ctk.StringVar(value="on")
 switch = ctk.CTkSwitch(root, text=translations[current_language]["dark_mode"], command=lambda: apperance_mode(switch_var.get()), variable=switch_var, onvalue="on", offvalue="off")
 switch.pack(pady=10)
 apperance_mode("on")
-
 save_button = ctk.CTkButton(root, text=translations[current_language]["btn_save"], command=lambda: saveresult(entry, root_state), font=("JetBrains Mono", 16))
 save_button.pack(pady=10, side="top")
 
