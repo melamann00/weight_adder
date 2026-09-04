@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="pl" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Talerze" />
+<meta name="theme-color" content="#14171b" />
+<meta name="description" content="Kalkulator talerzy na sztangę i kalkulator One Rep Max — działa offline, bez sklepu z aplikacjami." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='5' fill='%2314171b'/%3E%3Cg fill='%233a8fd6'%3E%3Crect x='1' y='9' width='2.4' height='6' rx='1'/%3E%3Crect x='4.4' y='7' width='2.4' height='10' rx='1'/%3E%3Crect x='7.8' y='11' width='8.4' height='2'/%3E%3Crect x='17.2' y='7' width='2.4' height='10' rx='1'/%3E%3Crect x='20.6' y='9' width='2.4' height='6' rx='1'/%3E%3C/g%3E%3C/svg%3E" />
+<title>Kalkulator talerzy na sztangę</title>
+<style>
+  :root {
+    --radius-sm: 8px;
+    --radius-md: 14px;
+    --radius-lg: 20px;
+    --gap: 16px;
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  html[data-theme="dark"] {
+    --bg: #14171b;
+    --surface: #1c2025;
+    --surface-2: #22262c;
+    --text: #edf0f2;
+    --text-dim: #838d99;
+    --line: #2b3036;
+    --accent: #3a8fd6;
+    --accent-text: #ffffff;
+    --danger: #e5686c;
+    --plate-outline: rgba(255, 255, 255, 0.16);
+
+    --plate-25: #d1382f;
+    --plate-20: #3a8fd6;
+    --plate-15: #e0b32e;
+    --plate-10: #3f9142;
+    --plate-5: #eef1f2;
+    --plate-2-5: #26292e;
+    --plate-1-25: #9aa4ad;
+    --plate-0-5: #b8c0c7;
+    --plate-0-25: #ced5da;
+  }
+
+  html[data-theme="light"] {
+    --bg: #eef0f2;
+    --surface: #ffffff;
+    --surface-2: #e7eaed;
+    --text: #171a1d;
+    --text-dim: #5b6570;
+    --line: #d7dbdf;
+    --accent: #256bab;
+    --accent-text: #ffffff;
+    --danger: #c8353b;
+    --plate-outline: rgba(0, 0, 0, 0.2);
+
+    --plate-25: #c8352c;
+    --plate-20: #256bab;
+    --plate-15: #c99a1f;
+    --plate-10: #337b39;
+    --plate-5: #f6f7f8;
+    --plate-2-5: #1c1f23;
+    --plate-1-25: #8a94a0;
+    --plate-0-5: #aab3ba;
+    --plate-0-25: #c3cbd1;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: transparent;
+    overscroll-behavior-y: none;
+  }
+  button { font-family: inherit; touch-action: manipulation; }
+  .mono {
+    font-family: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    font-variant-numeric: tabular-nums;
+  }
+  .sr-only {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+  }
+  button:focus-visible, input:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .app {
+    max-width: 480px;
+    margin: 0 auto;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    padding-top: var(--safe-top);
+  }
+
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px var(--gap) 6px;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; }
+  .brand span { font-size: 17px; font-weight: 600; letter-spacing: -0.01em; }
+  .icon-btn {
+    width: 40px; height: 40px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    color: var(--text);
+    user-select: none;
+  }
+  .icon-btn:active { background: var(--surface-2); }
+  html[data-theme="dark"] .icon-moon { display: none; }
+  html[data-theme="light"] .icon-sun { display: none; }
+
+  .content { flex: 1; padding: 10px var(--gap) 24px; }
+  .panel[hidden] { display: none; }
+
+  .field { margin-bottom: 18px; }
+  .field label {
+    display: block;
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+  }
+  .readout {
+    display: flex; align-items: baseline; gap: 8px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    padding: 14px 18px;
+  }
+  .readout:focus-within { border-color: var(--accent); }
+  .readout input {
+    flex: 1; min-width: 0;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-size: 30px;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .readout input::placeholder { color: var(--text-dim); opacity: 0.6; }
+  .readout .unit { font-size: 14px; color: var(--text-dim); }
+
+  .msg { min-height: 18px; margin-top: 10px; font-size: 14px; }
+  .msg.error { color: var(--danger); }
+  .msg.neutral { color: var(--text-dim); }
+
+  .btn-primary {
+    width: 100%;
+    padding: 15px;
+    border: none;
+    border-radius: var(--radius-lg);
+    background: var(--accent);
+    color: var(--accent-text);
+    font-size: 16px;
+    font-weight: 600;
+    user-select: none;
+  }
+  .btn-primary:active { opacity: 0.85; }
+  .btn-secondary {
+    width: 100%;
+    padding: 13px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+    color: var(--text);
+    font-size: 15px;
+    font-weight: 600;
+    user-select: none;
+  }
+  .btn-secondary:active { background: var(--surface-2); }
+
+  .result { margin-top: 26px; }
+  .result[hidden] { display: none; }
+
+  .barbell {
+    display: flex; align-items: flex-end; justify-content: center;
+    gap: 3px;
+    overflow-x: auto;
+    padding: 22px 4px 12px;
+  }
+  .bar-center {
+    width: 22px; height: 6px;
+    background: var(--text-dim);
+    border-radius: 3px;
+    flex: 0 0 auto;
+    align-self: center;
+    margin: 0 3px;
+  }
+  .plates-side { display: flex; align-items: flex-end; gap: 3px; flex: 0 0 auto; }
+  .plate {
+    flex: 0 0 auto;
+    border-radius: 3px;
+    border: 1px solid var(--plate-outline);
+  }
+
+  .breakdown { text-align: center; }
+  .breakdown .label { color: var(--text-dim); font-size: 13px; margin-bottom: 6px; }
+  .breakdown .value { font-size: 17px; }
+
+  .stat-row { display: flex; gap: 8px; margin-top: 18px; }
+  .stat-card {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    padding: 10px 6px;
+    text-align: center;
+  }
+  .stat-card .name { font-size: 11px; color: var(--text-dim); margin-bottom: 4px; }
+  .stat-card .val { font-size: 14px; font-weight: 600; }
+
+  .history-item {
+    display: flex; justify-content: space-between; gap: 12px;
+    padding: 14px 2px;
+    border-bottom: 1px solid var(--line);
+  }
+  .history-item:last-child { border-bottom: none; }
+  .history-main .type { font-size: 12px; color: var(--accent); margin-bottom: 3px; }
+  .history-main .primary { font-size: 14.5px; font-weight: 600; line-height: 1.4; }
+  .history-main .time { font-size: 12px; color: var(--text-dim); margin-top: 4px; }
+  .history-actions { display: flex; gap: 10px; margin-top: 20px; }
+
+  .tabbar {
+    position: sticky; bottom: 0;
+    display: flex;
+    border-top: 1px solid var(--line);
+    background: var(--surface);
+    padding-bottom: var(--safe-bottom);
+  }
+  .tab {
+    flex: 1;
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    padding: 10px 0 8px;
+    background: none; border: none;
+    color: var(--text-dim);
+    font-size: 11px;
+    user-select: none;
+  }
+  .tab.active { color: var(--accent); }
+  .tab svg { width: 21px; height: 21px; }
+
+  .toast {
+    position: fixed;
+    left: 50%; bottom: calc(78px + var(--safe-bottom));
+    transform: translateX(-50%) translateY(8px);
+    background: var(--text);
+    color: var(--bg);
+    padding: 10px 18px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 500;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    max-width: calc(100% - 32px);
+    text-align: center;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .toast { transition: none; }
+  }
+</style>
+</head>
+<body>
+<noscript>Ta aplikacja wymaga włączonej obsługi JavaScript.</noscript>
+
+<div class="app">
+  <header class="topbar">
+    <div class="brand">
+      <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
+        <g fill="var(--accent)">
+          <rect x="1" y="9" width="2.4" height="6" rx="1"/>
+          <rect x="4.4" y="7" width="2.4" height="10" rx="1"/>
+          <rect x="7.8" y="11" width="8.4" height="2"/>
+          <rect x="17.2" y="7" width="2.4" height="10" rx="1"/>
+          <rect x="20.6" y="9" width="2.4" height="6" rx="1"/>
+        </g>
+      </svg>
+      <span>Kalkulator talerzy</span>
+    </div>
+    <button id="themeToggle" class="icon-btn" type="button" aria-label="Przełącz jasny / ciemny motyw">
+      <svg class="icon-sun" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      <svg class="icon-moon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5Z"/></svg>
+    </button>
+  </header>
+
+  <main class="content">
+
+    <section id="panel-plates" class="panel" aria-labelledby="plates-heading">
+      <h2 class="sr-only" id="plates-heading">Kalkulator talerzy na sztangę</h2>
+
+      <div class="field">
+        <label for="plates-input">Ciężar całkowity</label>
+        <div class="readout">
+          <input id="plates-input" class="mono" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" placeholder="np. 100" autocomplete="off" />
+          <span class="unit">kg</span>
+        </div>
+        <div id="plates-msg" class="msg" role="status" aria-live="polite"></div>
+      </div>
+
+      <button id="plates-calc" class="btn-primary" type="button">Przelicz</button>
+
+      <div id="plates-result" class="result" hidden>
+        <div class="barbell" id="plates-barbell" aria-hidden="true"></div>
+        <div class="breakdown">
+          <div class="label">Na każdą stronę</div>
+          <div id="plates-breakdown" class="value mono"></div>
+        </div>
+        <button id="plates-save" class="btn-secondary" type="button" style="margin-top: 18px;">Zapisz wynik</button>
+      </div>
+    </section>
+
+    <section id="panel-orm" class="panel" hidden aria-labelledby="orm-heading">
+      <h2 class="sr-only" id="orm-heading">Kalkulator One Rep Max</h2>
+
+      <div class="field">
+        <label for="orm-weight">Ciężar podnoszony</label>
+        <div class="readout">
+          <input id="orm-weight" class="mono" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" placeholder="np. 80" autocomplete="off" />
+          <span class="unit">kg</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="orm-reps">Liczba powtórzeń</label>
+        <div class="readout">
+          <input id="orm-reps" class="mono" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="np. 5" autocomplete="off" />
+          <span class="unit">powt.</span>
+        </div>
+        <div id="orm-msg" class="msg" role="status" aria-live="polite"></div>
+      </div>
+
+      <button id="orm-calc" class="btn-primary" type="button">Przelicz</button>
+
+      <div id="orm-result" class="result" hidden>
+        <div class="breakdown">
+          <div class="label">Szacowany ciężar maksymalny (1RM)</div>
+          <div id="orm-value" class="mono" style="font-size: 38px; font-weight: 700;"></div>
+        </div>
+        <div class="stat-row">
+          <div class="stat-card"><div class="name">Brzycki</div><div id="orm-brzycki" class="val mono"></div></div>
+          <div class="stat-card"><div class="name">Epley</div><div id="orm-epley" class="val mono"></div></div>
+          <div class="stat-card"><div class="name">O'Conner</div><div id="orm-oconner" class="val mono"></div></div>
+        </div>
+        <button id="orm-save" class="btn-secondary" type="button" style="margin-top: 18px;">Zapisz wynik</button>
+      </div>
+    </section>
+
+    <section id="panel-history" class="panel" hidden aria-labelledby="history-heading">
+      <h2 class="sr-only" id="history-heading">Historia zapisanych wyników</h2>
+
+      <div id="history-empty" class="msg neutral">Brak zapisanych wyników. Zapisz obliczenie, aby pojawiło się tutaj.</div>
+      <div id="history-list"></div>
+
+      <div id="history-actions" class="history-actions" hidden>
+        <button id="history-export" class="btn-secondary" type="button">Eksportuj</button>
+        <button id="history-clear" class="btn-secondary" type="button">Wyczyść</button>
+      </div>
+    </section>
+
+  </main>
+
+  <nav class="tabbar" role="tablist" aria-label="Sekcje aplikacji">
+    <button class="tab active" data-tab="plates" role="tab" aria-selected="true" type="button">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><g fill="currentColor"><rect x="1" y="9" width="2.4" height="6" rx="1"/><rect x="4.4" y="7" width="2.4" height="10" rx="1"/><rect x="7.8" y="11" width="8.4" height="2"/><rect x="17.2" y="7" width="2.4" height="10" rx="1"/><rect x="20.6" y="9" width="2.4" height="6" rx="1"/></g></svg>
+      <span>Talerze</span>
+    </button>
+    <button class="tab" data-tab="orm" role="tab" aria-selected="false" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 19V13"/><path d="M10 19V9"/><path d="M16 19V5"/><path d="M20 19V11"/></svg>
+      <span>1RM</span>
+    </button>
+    <button class="tab" data-tab="history" role="tab" aria-selected="false" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+      <span>Historia</span>
+    </button>
+  </nav>
+</div>
+
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function () {
+  "use strict";
+
+  // ---------- Core calculation logic (mirrors the original Python app) ----------
+  var PLATE_WEIGHTS = [25, 20, 15, 10, 5, 2.5, 1.25, 0.5, 0.25];
+  var BAR_WEIGHT = 20;
+
+  function parseWeight(raw) {
+    if (typeof raw !== "string") return NaN;
+    var normalized = raw.trim().replace(",", ".");
+    if (normalized === "") return NaN;
+    return Number(normalized);
+  }
+
+  function calculatePlates(wanted) {
+    if (Number.isNaN(wanted)) {
+      return { status: "error", message: "Podaj poprawną liczbę." };
+    }
+    if (wanted < BAR_WEIGHT) {
+      return { status: "error", message: "Ciężar musi być większy lub równy 20 kg." };
+    }
+    if (wanted > 700) {
+      return { status: "error", message: "Podano zbyt duży ciężar." };
+    }
+    if (wanted === BAR_WEIGHT) {
+      return { status: "empty", message: "Brak ciężaru do załadowania" };
+    }
+    var remaining = (wanted - BAR_WEIGHT) / 2;
+    var loaded = [];
+    for (var i = 0; i < PLATE_WEIGHTS.length; i++) {
+      var plate = PLATE_WEIGHTS[i];
+      while (remaining - plate >= -0.001) {
+        loaded.push(plate);
+        remaining -= plate;
+      }
+    }
+    if (remaining > 0.001) {
+      return { status: "error", message: "Nie można dokładnie załadować takiego ciężaru." };
+    }
+    return { status: "ok", loaded: loaded, wanted: wanted };
+  }
+
+  function calculateORM(weight, reps) {
+    var brzycki = weight / (1.0278 - 0.0278 * reps);
+    var epley = weight * (1 + 0.0333 * reps);
+    var oconner = weight * (1 + 0.025 * reps);
+    return {
+      avg: (brzycki + epley + oconner) / 3,
+      brzycki: brzycki,
+      epley: epley,
+      oconner: oconner
+    };
+  }
+
+  // ---------- State ----------
+  var state = {
+    theme: "dark",
+    plates: { loaded: [], wanted: null },
+    orm: { result: null, weight: null, reps: null },
+    history: []
+  };
+
+  var $ = function (id) { return document.getElementById(id); };
+
+  var platesInput = $("plates-input");
+  var platesMsg = $("plates-msg");
+  var platesResult = $("plates-result");
+  var platesBarbell = $("plates-barbell");
+  var platesBreakdown = $("plates-breakdown");
+  var platesSaveBtn = $("plates-save");
+
+  var ormWeight = $("orm-weight");
+  var ormReps = $("orm-reps");
+  var ormMsg = $("orm-msg");
+  var ormResult = $("orm-result");
+  var ormValue = $("orm-value");
+  var ormBrzycki = $("orm-brzycki");
+  var ormEpley = $("orm-epley");
+  var ormOconner = $("orm-oconner");
+  var ormSaveBtn = $("orm-save");
+
+  var historyEmpty = $("history-empty");
+  var historyList = $("history-list");
+  var historyActions = $("history-actions");
+
+  var toast = $("toast");
+
+  // ---------- Theme ----------
+  function setTheme(mode) {
+    state.theme = mode;
+    document.documentElement.setAttribute("data-theme", mode);
+  }
+  $("themeToggle").addEventListener("click", function () {
+    setTheme(state.theme === "dark" ? "light" : "dark");
+  });
+
+  // ---------- Tabs ----------
+  var panels = {
+    plates: $("panel-plates"),
+    orm: $("panel-orm"),
+    history: $("panel-history")
+  };
+  var tabButtons = document.querySelectorAll(".tab");
+  for (var t = 0; t < tabButtons.length; t++) {
+    tabButtons[t].addEventListener("click", function (e) {
+      var btn = e.currentTarget;
+      var target = btn.getAttribute("data-tab");
+      for (var j = 0; j < tabButtons.length; j++) {
+        var active = tabButtons[j] === btn;
+        tabButtons[j].classList.toggle("active", active);
+        tabButtons[j].setAttribute("aria-selected", active ? "true" : "false");
+      }
+      for (var key in panels) {
+        if (panels.hasOwnProperty(key)) {
+          panels[key].hidden = key !== target;
+        }
+      }
+    });
+  }
+
+  // ---------- Toast ----------
+  var toastTimer = null;
+  function showToast(text) {
+    toast.textContent = text;
+    toast.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toast.classList.remove("show"); }, 1800);
+  }
+
+  // ---------- Plate visualization ----------
+  var PLATE_STYLE = {
+    25:   { h: 84, w: 17 },
+    20:   { h: 84, w: 15 },
+    15:   { h: 72, w: 14 },
+    10:   { h: 60, w: 13 },
+    5:    { h: 48, w: 12 },
+    2.5:  { h: 38, w: 11 },
+    1.25: { h: 32, w: 9 },
+    0.5:  { h: 26, w: 8 },
+    0.25: { h: 22, w: 7 }
+  };
+  var PLATE_VAR = {
+    25: "--plate-25", 20: "--plate-20", 15: "--plate-15", 10: "--plate-10",
+    5: "--plate-5", 2.5: "--plate-2-5", 1.25: "--plate-1-25",
+    0.5: "--plate-0-5", 0.25: "--plate-0-25"
+  };
+
+  function plateDiv(weight) {
+    var style = PLATE_STYLE[weight];
+    var div = document.createElement("div");
+    div.className = "plate";
+    div.style.height = style.h + "px";
+    div.style.width = style.w + "px";
+    div.style.background = "var(" + PLATE_VAR[weight] + ")";
+    if (weight === 5) div.style.borderWidth = "2px";
+    return div;
+  }
+
+  function renderBarbell(loaded) {
+    platesBarbell.innerHTML = "";
+    var left = document.createElement("div");
+    left.className = "plates-side";
+    var reversed = loaded.slice().reverse();
+    for (var i = 0; i < reversed.length; i++) left.appendChild(plateDiv(reversed[i]));
+
+    var center = document.createElement("div");
+    center.className = "bar-center";
+
+    var right = document.createElement("div");
+    right.className = "plates-side";
+    for (var k = 0; k < loaded.length; k++) right.appendChild(plateDiv(loaded[k]));
+
+    platesBarbell.appendChild(left);
+    platesBarbell.appendChild(center);
+    platesBarbell.appendChild(right);
+  }
+
+  // ---------- Plates tab ----------
+  function runPlatesCalc() {
+    var wanted = parseWeight(platesInput.value);
+    var res = calculatePlates(wanted);
+
+    platesMsg.textContent = "";
+    platesMsg.className = "msg";
+    platesResult.hidden = true;
+
+    if (res.status === "error") {
+      platesMsg.textContent = res.message;
+      platesMsg.classList.add("error");
+      state.plates = { loaded: [], wanted: null };
+      return;
+    }
+    if (res.status === "empty") {
+      platesMsg.textContent = res.message;
+      platesMsg.classList.add("neutral");
+      state.plates = { loaded: [], wanted: wanted };
+      return;
+    }
+    state.plates = { loaded: res.loaded, wanted: wanted };
+    renderBarbell(res.loaded);
+    platesBreakdown.textContent = res.loaded.join(" + ") + " kg";
+    platesResult.hidden = false;
+  }
+
+  $("plates-calc").addEventListener("click", runPlatesCalc);
+  platesInput.addEventListener("keydown", function (e) { if (e.key === "Enter") runPlatesCalc(); });
+
+  platesSaveBtn.addEventListener("click", function () {
+    if (!state.plates.loaded.length) return;
+    addHistory({
+      type: "Talerze",
+      primary: state.plates.wanted + " kg  \u2192  " + state.plates.loaded.join(" + ") + " kg / stron\u0119"
+    });
+    showToast("Zapisano do historii");
+  });
+
+  // ---------- ORM tab ----------
+  function runOrmCalc() {
+    var weight = parseWeight(ormWeight.value);
+    var repsRaw = ormReps.value.trim();
+    var reps = /^\d+$/.test(repsRaw) ? parseInt(repsRaw, 10) : NaN;
+
+    ormMsg.textContent = "";
+    ormMsg.className = "msg";
+    ormResult.hidden = true;
+
+    if (Number.isNaN(weight) || Number.isNaN(reps) || weight <= 0 || reps <= 0) {
+      ormMsg.textContent = "Podaj poprawne warto\u015Bci.";
+      ormMsg.classList.add("error");
+      state.orm = { result: null, weight: null, reps: null };
+      return;
+    }
+
+    var res = calculateORM(weight, reps);
+    state.orm = { result: res, weight: weight, reps: reps };
+    ormValue.textContent = res.avg.toFixed(2) + " kg";
+    ormBrzycki.textContent = res.brzycki.toFixed(2) + " kg";
+    ormEpley.textContent = res.epley.toFixed(2) + " kg";
+    ormOconner.textContent = res.oconner.toFixed(2) + " kg";
+    ormResult.hidden = false;
+  }
+
+  $("orm-calc").addEventListener("click", runOrmCalc);
+  ormWeight.addEventListener("keydown", function (e) { if (e.key === "Enter") runOrmCalc(); });
+  ormReps.addEventListener("keydown", function (e) { if (e.key === "Enter") runOrmCalc(); });
+
+  ormSaveBtn.addEventListener("click", function () {
+    if (!state.orm.result) return;
+    addHistory({
+      type: "1RM",
+      primary: "1RM: " + state.orm.result.avg.toFixed(2) + " kg  (" + state.orm.weight + " kg \u00D7 " + state.orm.reps + " powt.)"
+    });
+    showToast("Zapisano do historii");
+  });
+
+  // ---------- History ----------
+  function addHistory(entry) {
+    state.history.unshift({
+      id: Date.now() + Math.random(),
+      time: new Date(),
+      type: entry.type,
+      primary: entry.primary
+    });
+    renderHistory();
+  }
+
+  function formatTime(d) {
+    return d.toLocaleString("pl-PL", {
+      day: "2-digit", month: "2-digit", year: "numeric",
+      hour: "2-digit", minute: "2-digit"
+    });
+  }
+
+  function renderHistory() {
+    historyList.innerHTML = "";
+    var has = state.history.length > 0;
+    historyEmpty.hidden = has;
+    historyActions.hidden = !has;
+
+    for (var i = 0; i < state.history.length; i++) {
+      var item = state.history[i];
+      var row = document.createElement("div");
+      row.className = "history-item";
+
+      var main = document.createElement("div");
+      main.className = "history-main";
+
+      var typeEl = document.createElement("div");
+      typeEl.className = "type";
+      typeEl.textContent = item.type;
+
+      var primaryEl = document.createElement("div");
+      primaryEl.className = "primary mono";
+      primaryEl.textContent = item.primary;
+
+      var timeEl = document.createElement("div");
+      timeEl.className = "time";
+      timeEl.textContent = formatTime(item.time);
+
+      main.appendChild(typeEl);
+      main.appendChild(primaryEl);
+      main.appendChild(timeEl);
+      row.appendChild(main);
+      historyList.appendChild(row);
+    }
+  }
+
+  $("history-export").addEventListener("click", function () {
+    if (!state.history.length) return;
+    var lines = [];
+    var chron = state.history.slice().reverse();
+    for (var i = 0; i < chron.length; i++) {
+      var h = chron[i];
+      lines.push(formatTime(h.time) + " | " + h.type + " | " + h.primary);
+    }
+    var blob = new Blob([lines.join("\n")], { type: "text/plain;charset=utf-8" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = "kalkulator-talerzy-historia.txt";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
+
+  $("history-clear").addEventListener("click", function () {
+    if (!state.history.length) return;
+    if (confirm("Usun\u0105\u0107 ca\u0142\u0105 histori\u0119 zapisanych wynik\u00F3w?")) {
+      state.history = [];
+      renderHistory();
+    }
+  });
+
+  // ---------- init ----------
+  setTheme("dark");
+  renderHistory();
+})();
+</script>
+</body>
+</html>
