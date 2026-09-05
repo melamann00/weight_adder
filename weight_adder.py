@@ -14,6 +14,7 @@ MB_DROPDOWN_BG = ("#ebebeb", "#2b2b2b")         # dropdown panel background
 MB_SEPARATOR_COLOR = ("#bfbfbf", "#3f3f3f")     # separator line in dropdown
 
 current_language = "pl"
+open_windows = []
 
 translations = {
     "pl": {
@@ -216,6 +217,60 @@ def save_result_orm(orm, entry, entry_weight):
             +" reps\n"
         )
 
+def update_plates_window_lang(refs):
+    t = translations[current_language]
+    refs["win"].title(t["app_title_plates"])
+    refs["title_label"].configure(text=t["title_plates"])
+    refs["entry_label"].configure(text=t["enter_total_weight"])
+    refs["calc_button"].configure(text=t["btn_calc"])
+    refs["save_button"].configure(text=t["btn_save"])
+    refs["switch"].configure(text=t["dark_mode"])
+    refs["result_label"].configure(text="")
+    refs["file_btn"].configure(text=t["menu_file"])
+    refs["file_new"].configure(text=t["menu_new"])
+    refs["file_exit"].configure(text=t["menu_exit"])
+    refs["save_btn"].configure(text=t["menu_save"])
+    refs["save_result"].configure(text=t["menu_save_result"])
+    refs["other_btn"].configure(text=t["menu_other"])
+    refs["other_orm"].configure(text=t["menu_orm_calc"])
+    refs["lang_btn"].configure(text=t["menu_language"])
+    refs["help_btn"].configure(text=t["menu_help"])
+    refs["help_about"].configure(text=t["menu_about"])
+
+def update_orm_window_lang(refs):
+    t = translations[current_language]
+    refs["win"].title(t["title_orm"])
+    refs["title_label"].configure(text=t["title_orm"])
+    refs["weight_label"].configure(text=t["enter_weight"])
+    refs["reps_label"].configure(text=t["enter_reps"])
+    refs["calc_button"].configure(text=t["btn_calc"])
+    refs["save_button"].configure(text=t["btn_save"])
+    refs["switch"].configure(text=t["dark_mode"])
+    refs["result_label"].configure(text="")
+    refs["file_btn"].configure(text=t["menu_file"])
+    refs["file_new"].configure(text=t["menu_new"])
+    refs["file_exit"].configure(text=t["menu_exit"])
+    refs["save_btn"].configure(text=t["menu_save"])
+    refs["save_result"].configure(text=t["menu_save_result"])
+    refs["other_btn"].configure(text=t["menu_other"])
+    refs["other_orm"].configure(text=t["menu_orm_calc"])
+    refs["lang_btn"].configure(text=t["menu_language"])
+    refs["help_btn"].configure(text=t["menu_help"])
+    refs["help_about"].configure(text=t["menu_about"])
+
+def update_open_windows_lang():
+    global open_windows
+    still_open = []
+    for refs in open_windows:
+        if not refs["win"].winfo_exists():
+            continue
+        still_open.append(refs)
+        if refs["type"] == "plates":
+            update_plates_window_lang(refs)
+        elif refs["type"] == "orm":
+            update_orm_window_lang(refs)
+    open_windows = still_open
+
 def open_onerep_max():
     new_win = ctk.CTkToplevel(root)
     state = {"orm": None}
@@ -224,17 +279,17 @@ def open_onerep_max():
 
     file_btn = menu_bar.add_cascade(translations[current_language]["menu_file"])
     file_dd = new_dropdown(file_btn)
-    file_dd.add_option(option=translations[current_language]["menu_new"], command=open_second_window)
+    file_new = file_dd.add_option(option=translations[current_language]["menu_new"], command=open_second_window)
     file_dd.add_separator()
-    file_dd.add_option(option=translations[current_language]["menu_exit"], command=new_win.destroy)
+    file_exit = file_dd.add_option(option=translations[current_language]["menu_exit"], command=new_win.destroy)
 
     save_btn = menu_bar.add_cascade(translations[current_language]["menu_save"])
     save_dd = new_dropdown(save_btn)
-    save_dd.add_option(option=translations[current_language]["menu_save_result"], command=lambda: save_result_orm(state["orm"], entry_weight, entry))
+    save_result = save_dd.add_option(option=translations[current_language]["menu_save_result"], command=lambda: save_result_orm(state["orm"], entry_weight, entry))
 
     other_btn = menu_bar.add_cascade(translations[current_language]["menu_other"])
     other_dd = new_dropdown(other_btn)
-    other_dd.add_option(option=translations[current_language]["menu_orm_calc"], command=open_onerep_max)
+    other_orm = other_dd.add_option(option=translations[current_language]["menu_orm_calc"], command=open_onerep_max)
     
     lang_btn = menu_bar.add_cascade(translations[current_language]["menu_language"])
     lang_dd = new_dropdown(lang_btn)
@@ -243,7 +298,7 @@ def open_onerep_max():
 
     help_btn = menu_bar.add_cascade(translations[current_language]["menu_help"])
     help_dd = new_dropdown(help_btn)
-    help_dd.add_option(option=translations[current_language]["menu_about"], command=url)
+    help_about = help_dd.add_option(option=translations[current_language]["menu_about"], command=url)
 
     new_win.title(translations[current_language]["title_orm"])
     new_win.geometry("600x400")
@@ -285,6 +340,28 @@ def open_onerep_max():
     save_button = ctk.CTkButton(new_win, text=translations[current_language]["btn_save"], command=lambda: save_result_orm(state["orm"], entry_weight, entry), font=("JetBrains Mono", 16))
     save_button.pack(pady=10, side="top")
 
+    open_windows.append({
+        "win": new_win,
+        "type": "orm",
+        "file_btn": file_btn,
+        "file_new": file_new,
+        "file_exit": file_exit,
+        "save_btn": save_btn,
+        "save_result": save_result,
+        "other_btn": other_btn,
+        "other_orm": other_orm,
+        "lang_btn": lang_btn,
+        "help_btn": help_btn,
+        "help_about": help_about,
+        "title_label": title,
+        "weight_label": weight_label,
+        "reps_label": reps_label,
+        "calc_button": calc_button,
+        "save_button": save_button,
+        "switch": switch,
+        "result_label": result_label,
+    })
+
 def open_second_window():
     new_win = ctk.CTkToplevel(root)
     state = {"loaded": []}
@@ -293,17 +370,17 @@ def open_second_window():
 
     file_btn = menu_bar.add_cascade(translations[current_language]["menu_file"])
     file_dd = new_dropdown(file_btn)
-    file_dd.add_option(option=translations[current_language]["menu_new"], command=open_second_window)
+    file_new = file_dd.add_option(option=translations[current_language]["menu_new"], command=open_second_window)
     file_dd.add_separator()
-    file_dd.add_option(option=translations[current_language]["menu_exit"], command=new_win.destroy)
+    file_exit = file_dd.add_option(option=translations[current_language]["menu_exit"], command=new_win.destroy)
 
     save_btn = menu_bar.add_cascade(translations[current_language]["menu_save"])
     save_dd = new_dropdown(save_btn)
-    save_dd.add_option(option=translations[current_language]["menu_save_result"], command=lambda: saveresult(entry, state))
+    save_result = save_dd.add_option(option=translations[current_language]["menu_save_result"], command=lambda: saveresult(entry, state))
 
     other_btn = menu_bar.add_cascade(translations[current_language]["menu_other"])
     other_dd = new_dropdown(other_btn)
-    other_dd.add_option(option=translations[current_language]["menu_orm_calc"], command=open_onerep_max)
+    other_orm = other_dd.add_option(option=translations[current_language]["menu_orm_calc"], command=open_onerep_max)
     
     lang_btn = menu_bar.add_cascade(translations[current_language]["menu_language"])
     lang_dd = new_dropdown(lang_btn)
@@ -312,7 +389,7 @@ def open_second_window():
 
     help_btn = menu_bar.add_cascade(translations[current_language]["menu_help"])
     help_dd = new_dropdown(help_btn)
-    help_dd.add_option(option=translations[current_language]["menu_about"], command=url)
+    help_about = help_dd.add_option(option=translations[current_language]["menu_about"], command=url)
 
     new_win.title(translations[current_language]["app_title_plates"])
     new_win.geometry("600x400")
@@ -338,8 +415,29 @@ def open_second_window():
     switch = ctk.CTkSwitch(new_win, text=translations[current_language]["dark_mode"], command=lambda: apperance_mode(switch_var.get()), variable=switch_var, onvalue="on", offvalue="off")
     switch.pack(pady=10)
     
-    save_button = ctk.CTkButton(new_win, text=translations[current_language]["btn_save"], command=lambda: saveresult(entry, root_state), font=("JetBrains Mono", 16))
+    save_button = ctk.CTkButton(new_win, text=translations[current_language]["btn_save"], command=lambda: saveresult(entry, state), font=("JetBrains Mono", 16))
     save_button.pack(pady=10, side="top")
+
+    open_windows.append({
+        "win": new_win,
+        "type": "plates",
+        "file_btn": file_btn,
+        "file_new": file_new,
+        "file_exit": file_exit,
+        "save_btn": save_btn,
+        "save_result": save_result,
+        "other_btn": other_btn,
+        "other_orm": other_orm,
+        "lang_btn": lang_btn,
+        "help_btn": help_btn,
+        "help_about": help_about,
+        "title_label": title_label,
+        "entry_label": entry_label,
+        "calc_button": calc_button,
+        "save_button": save_button,
+        "switch": switch,
+        "result_label": result_label,
+    })
 
 
 def apperance_mode(switch_value):
@@ -354,15 +452,27 @@ def set_language(lang_code):
     global current_language
     current_language = lang_code
     update_main_window_lang()
+    update_open_windows_lang()
 
 def update_main_window_lang():
-    root.title(translations[current_language]["app_title_plates"])
-    title_label.configure(text=translations[current_language]["title_plates"])
-    entry_label.configure(text=translations[current_language]["enter_total_weight"])
-    calc_button.configure(text=translations[current_language]["btn_calc"])
-    save_button.configure(text=translations[current_language]["btn_save"])
-    switch.configure(text=translations[current_language]["dark_mode"])
+    t = translations[current_language]
+    root.title(t["app_title_plates"])
+    title_label.configure(text=t["title_plates"])
+    entry_label.configure(text=t["enter_total_weight"])
+    calc_button.configure(text=t["btn_calc"])
+    save_button.configure(text=t["btn_save"])
+    switch.configure(text=t["dark_mode"])
     result_label.configure(text="")
+    root_file_btn.configure(text=t["menu_file"])
+    root_file_new.configure(text=t["menu_new"])
+    root_file_exit.configure(text=t["menu_exit"])
+    root_save_btn.configure(text=t["menu_save"])
+    root_save_result.configure(text=t["menu_save_result"])
+    root_other_btn.configure(text=t["menu_other"])
+    root_other_orm.configure(text=t["menu_orm_calc"])
+    root_lang_btn.configure(text=t["menu_language"])
+    root_help_btn.configure(text=t["menu_help"])
+    root_help_about.configure(text=t["menu_about"])
 
 ctk.set_default_color_theme("blue")
 root = ctk.CTk()
@@ -372,17 +482,17 @@ root_menu_bar = new_menu_bar(root)
 
 root_file_btn = root_menu_bar.add_cascade(translations[current_language]["menu_file"])
 root_file_dd = new_dropdown(root_file_btn)
-root_file_dd.add_option(option=translations[current_language]["menu_new"], command=open_second_window)
+root_file_new = root_file_dd.add_option(option=translations[current_language]["menu_new"], command=open_second_window)
 root_file_dd.add_separator()
-root_file_dd.add_option(option=translations[current_language]["menu_exit"], command=root.quit)
+root_file_exit = root_file_dd.add_option(option=translations[current_language]["menu_exit"], command=root.quit)
 
 root_save_btn = root_menu_bar.add_cascade(translations[current_language]["menu_save"])
 root_save_dd = new_dropdown(root_save_btn)
-root_save_dd.add_option(option=translations[current_language]["menu_save_result"], command=lambda: saveresult(entry, root_state))
+root_save_result = root_save_dd.add_option(option=translations[current_language]["menu_save_result"], command=lambda: saveresult(entry, root_state))
 
 root_other_btn = root_menu_bar.add_cascade(translations[current_language]["menu_other"])
 root_other_dd = new_dropdown(root_other_btn)
-root_other_dd.add_option(option=translations[current_language]["menu_orm_calc"], command=open_onerep_max)
+root_other_orm = root_other_dd.add_option(option=translations[current_language]["menu_orm_calc"], command=open_onerep_max)
 
 root_lang_btn = root_menu_bar.add_cascade(translations[current_language]["menu_language"])
 root_lang_dd = new_dropdown(root_lang_btn)
@@ -391,7 +501,7 @@ root_lang_dd.add_option(option="English", command=lambda: set_language("en"))
 
 root_help_btn = root_menu_bar.add_cascade(translations[current_language]["menu_help"])
 root_help_dd = new_dropdown(root_help_btn)
-root_help_dd.add_option(option=translations[current_language]["menu_about"], command=url)
+root_help_about = root_help_dd.add_option(option=translations[current_language]["menu_about"], command=url)
 
 root.title(translations[current_language]["app_title_plates"])
 root.geometry("600x400")
